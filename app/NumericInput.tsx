@@ -35,9 +35,9 @@ const NumericInput = forwardRef<HTMLInputElement, NumericInputProps>(
         const numericValue = parseInt(tentativeValue, 10);
 
         if (numericValue >= min && numericValue <= max) {
-          setValue(tentativeValue); // Utiliser setValue ici
+          setValue(tentativeValue);
         } else {
-          setValue("0" + lastDigit); // Utiliser setValue ici
+          setValue("0" + lastDigit);
         }
       },
       [min, max, value, setValue]
