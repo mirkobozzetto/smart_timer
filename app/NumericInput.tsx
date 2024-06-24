@@ -1,6 +1,9 @@
 "use client";
 
-import React, { forwardRef, useCallback, useRef } from "react";
+import React, { forwardRef, useRef } from "react";
+import useFocusClass from "./hooks/useFocusClass";
+import useHandleKeyDown from "./hooks/useHandleKeyDown";
+import useIncrementDecrement from "./hooks/useIncrementDecrement";
 
 interface NumericInputProps {
   min: number;
@@ -11,62 +14,31 @@ interface NumericInputProps {
 
 const NumericInput = forwardRef<HTMLInputElement, NumericInputProps>(
   ({ min, max, label, onNavigate }, ref) => {
-    const value = useRef("00");
+    const { value, increment, decrement } = useIncrementDecrement(
+      min,
+      max,
+      "00"
+    );
     const isFocused = useRef(false);
-    const lastNavigationTime = useRef(0);
 
-    const handleChange = useCallback(
-      (event: React.ChangeEvent<HTMLInputElement>) => {
-        const inputValue = event.target.value;
-        const lastDigit = inputValue[inputValue.length - 1];
-        const tentativeValue = value.current[1] + lastDigit;
-        const numericValue = parseInt(tentativeValue, 10);
-
-        if (numericValue >= min && numericValue <= max) {
-          value.current = tentativeValue;
-        } else {
-          value.current = "0" + lastDigit;
-        }
-        event.target.value = value.current;
-      },
-      [min, max]
+    const { handleFocus, handleBlur } = useFocusClass(
+      ref,
+      "bg-[#894889] text-white"
     );
+    const handleKeyDown = useHandleKeyDown(onNavigate, increment, decrement);
 
-    const handleKeyDown = useCallback(
-      (e: React.KeyboardEvent<HTMLInputElement>) => {
-        const input = e.target as HTMLInputElement;
-        const currentTime = Date.now();
+    const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+      const inputValue = event.target.value;
+      const lastDigit = inputValue[inputValue.length - 1];
+      const tentativeValue = value[1] + lastDigit;
+      const numericValue = parseInt(tentativeValue, 10);
 
-        const navigate = (direction: "left" | "right") => {
-          if (currentTime - lastNavigationTime.current > 400) {
-            lastNavigationTime.current = currentTime;
-            onNavigate(direction);
-          }
-        };
-
-        switch (e.key) {
-          case "ArrowLeft":
-            if (input.selectionStart === 0) {
-              e.preventDefault();
-              navigate("left");
-            }
-            break;
-          case "ArrowRight":
-            if (input.selectionEnd === input.value.length) {
-              e.preventDefault();
-              navigate("right");
-            }
-            break;
-          case "Backspace":
-            break;
-          default:
-            if (!/[0-9]/.test(e.key)) {
-              e.preventDefault();
-            }
-        }
-      },
-      [onNavigate]
-    );
+      if (numericValue >= min && numericValue <= max) {
+        increment(tentativeValue);
+      } else {
+        increment("0" + lastDigit);
+      }
+    };
 
     return (
       <div className="flex flex-col items-center">
@@ -77,23 +49,12 @@ const NumericInput = forwardRef<HTMLInputElement, NumericInputProps>(
           className={`w-20 font-bold text-center text-lg cursor-default caret-transparent outline-none rounded ${
             isFocused.current ? "bg-[#894889] text-white" : ""
           }`}
-          defaultValue={value.current}
+          value={value}
           onChange={handleChange}
           onKeyDown={handleKeyDown}
           maxLength={3}
-          onFocus={() => {
-            isFocused.current = true;
-            (ref as React.RefObject<HTMLInputElement>).current?.classList.add(
-              "bg-[#894889]",
-              "text-white"
-            );
-          }}
-          onBlur={() => {
-            isFocused.current = false;
-            (
-              ref as React.RefObject<HTMLInputElement>
-            ).current?.classList.remove("bg-[#894889]", "text-white");
-          }}
+          onFocus={handleFocus}
+          onBlur={handleBlur}
         />
       </div>
     );

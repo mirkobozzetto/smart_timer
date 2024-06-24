@@ -1,25 +1,11 @@
 "use client";
 
-import { useCallback, useRef } from "react";
 import NumericInput from "./NumericInput";
+import useTimePickerNavigation from "./hooks/useTimePickerNavigation";
 
 const TimePicker = () => {
-  const hoursRef = useRef<HTMLInputElement>(null);
-  const minutesRef = useRef<HTMLInputElement>(null);
-  const secondsRef = useRef<HTMLInputElement>(null);
-
-  const handleNavigate = useCallback(
-    (from: "hours" | "minutes" | "seconds", direction: "left" | "right") => {
-      if (from === "hours" && direction === "right")
-        minutesRef.current?.focus();
-      if (from === "minutes" && direction === "left") hoursRef.current?.focus();
-      if (from === "minutes" && direction === "right")
-        secondsRef.current?.focus();
-      if (from === "seconds" && direction === "left")
-        minutesRef.current?.focus();
-    },
-    []
-  );
+  const { hoursRef, minutesRef, secondsRef, handleNavigate } =
+    useTimePickerNavigation();
 
   return (
     <div className="flex space-x-4">
