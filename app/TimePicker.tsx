@@ -1,52 +1,41 @@
-import React, { useState } from "react";
+"use client";
 
-interface NumericInputProps {
-  min: number;
-  max: number;
-  label: string;
-}
+import { useRef } from "react";
+import NumericInput from "./NumericInput";
 
-const NumericInput = ({ min, max, label }: NumericInputProps) => {
-  const [value, setValue] = useState("00");
+const TimePicker = () => {
+  const hoursRef = useRef<HTMLInputElement>(null);
+  const minutesRef = useRef<HTMLInputElement>(null);
+  const secondsRef = useRef<HTMLInputElement>(null);
 
-  const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const inputValue = event.target.value;
-    const lastDigit = inputValue[inputValue.length - 1];
-    const tentativeValue = value[1] + lastDigit;
-    const numericValue = parseInt(tentativeValue, 10);
-
-    if (numericValue >= min && numericValue <= max) {
-      setValue(tentativeValue);
-    } else {
-      setValue("0" + lastDigit);
-    }
+  const handleNavigate = (from: string, direction: "left" | "right") => {
+    if (from === "hours" && direction === "right") minutesRef.current?.focus();
+    if (from === "minutes" && direction === "left") hoursRef.current?.focus();
+    if (from === "minutes" && direction === "right")
+      secondsRef.current?.focus();
+    if (from === "seconds" && direction === "left") minutesRef.current?.focus();
   };
 
   return (
-    <div className="flex flex-col items-center">
-      <label className="mb-1 font-medium text-sm">{label}</label>
-      <input
-        type="text"
-        className="w-20 font-bold text-center text-lg cursor-default caret-transparent outline-none"
-        value={value}
-        onChange={handleChange}
-        maxLength={3}
-        onKeyDown={(e) => {
-          if (!/[0-9]/.test(e.key) && e.key !== "Backspace") {
-            e.preventDefault();
-          }
-        }}
-      />
-    </div>
-  );
-};
-
-const TimePicker = () => {
-  return (
     <div className="flex space-x-4">
-      <NumericInput min={0} max={23} label="Hours" />
-      <NumericInput min={0} max={59} label="Minutes" />
-      <NumericInput min={0} max={59} label="Seconds" />
+      <NumericInput
+        min={0}
+        max={23}
+        label="Hours"
+        onNavigate={(direction) => handleNavigate("hours", direction)}
+      />
+      <NumericInput
+        min={0}
+        max={59}
+        label="Minutes"
+        onNavigate={(direction) => handleNavigate("minutes", direction)}
+      />
+      <NumericInput
+        min={0}
+        max={59}
+        label="Seconds"
+        onNavigate={(direction) => handleNavigate("seconds", direction)}
+      />
     </div>
   );
 };
