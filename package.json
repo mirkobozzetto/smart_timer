@@ -9,6 +9,7 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@million/lint": "1.0.0-rc.26",
     "clsx": "^2.1.1",
     "next": "14.2.4",
     "react": "^18",

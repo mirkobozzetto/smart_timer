@@ -1,6 +1,6 @@
 "use client";
 
-import React, { forwardRef, useRef } from "react";
+import React, { forwardRef, useCallback, useRef } from "react";
 import useFocusClass from "./hooks/useFocusClass";
 import useHandleKeyDown from "./hooks/useHandleKeyDown";
 import useIncrementDecrement from "./hooks/useIncrementDecrement";
@@ -14,7 +14,7 @@ interface NumericInputProps {
 
 const NumericInput = forwardRef<HTMLInputElement, NumericInputProps>(
   ({ min, max, label, onNavigate }, ref) => {
-    const { value, increment, decrement } = useIncrementDecrement(
+    const { value, increment, decrement, setValue } = useIncrementDecrement(
       min,
       max,
       "00"
@@ -22,23 +22,26 @@ const NumericInput = forwardRef<HTMLInputElement, NumericInputProps>(
     const isFocused = useRef(false);
 
     const { handleFocus, handleBlur } = useFocusClass(
-      ref,
+      ref as React.RefObject<HTMLInputElement>,
       "bg-[#894889] text-white"
     );
     const handleKeyDown = useHandleKeyDown(onNavigate, increment, decrement);
 
-    const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-      const inputValue = event.target.value;
-      const lastDigit = inputValue[inputValue.length - 1];
-      const tentativeValue = value[1] + lastDigit;
-      const numericValue = parseInt(tentativeValue, 10);
+    const handleChange = useCallback(
+      (event: React.ChangeEvent<HTMLInputElement>) => {
+        const inputValue = event.target.value;
+        const lastDigit = inputValue[inputValue.length - 1];
+        const tentativeValue = value[1] + lastDigit;
+        const numericValue = parseInt(tentativeValue, 10);
 
-      if (numericValue >= min && numericValue <= max) {
-        increment(tentativeValue);
-      } else {
-        increment("0" + lastDigit);
-      }
-    };
+        if (numericValue >= min && numericValue <= max) {
+          setValue(tentativeValue); // Utiliser setValue ici
+        } else {
+          setValue("0" + lastDigit); // Utiliser setValue ici
+        }
+      },
+      [min, max, value, setValue]
+    );
 
     return (
       <div className="flex flex-col items-center">
