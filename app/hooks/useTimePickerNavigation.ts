@@ -26,6 +26,7 @@ const useTimePickerNavigation = () => {
       };
 
       const nextUnit = nextRefMap[from][direction];
+      console.log("Handle Navigate:", { from, direction, nextUnit });
       refs[nextUnit].current?.focus();
     },
     [refs]

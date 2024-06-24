@@ -34,6 +34,12 @@ const NumericInput = forwardRef<HTMLInputElement, NumericInputProps>(
         const tentativeValue = value[1] + lastDigit;
         const numericValue = parseInt(tentativeValue, 10);
 
+        console.log("Handle Change:", {
+          inputValue,
+          tentativeValue,
+          numericValue,
+        });
+
         if (numericValue >= min && numericValue <= max) {
           setValue(tentativeValue);
         } else {

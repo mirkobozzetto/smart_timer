@@ -10,6 +10,7 @@ const useHandleKeyDown = (
       const input = e.target as HTMLInputElement;
 
       const navigate = (direction: "left" | "right") => {
+        console.log("Navigate:", direction);
         onNavigate(direction);
       };
 
