@@ -42,6 +42,7 @@ const NumericInput = forwardRef<HTMLInputElement, NumericInputProps>(
             type="text"
             className={clsx(
               "w-24 font-bold text-center text-6xl cursor-default caret-transparent outline-none rounded text-gray-100 bg-[#1E1E1E] focus:bg-[#894889] focus:text-white",
+              "selection:bg-transparent",
               {
                 "bg-[#894889] text-white": isFocused,
               }

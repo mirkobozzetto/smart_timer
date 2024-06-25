@@ -24,35 +24,44 @@ const useNumericInputLogic = ({
 
   const handleKeyDown = useCallback(
     (e: React.KeyboardEvent<HTMLInputElement>) => {
-      switch (e.key) {
-        case "ArrowLeft":
-          if (e.currentTarget.selectionStart === 0) {
+      if (/^[0-9]$/.test(e.key)) {
+        e.preventDefault();
+        const newValue = (value.slice(-1) + e.key).padStart(2, "0");
+        if (parseInt(newValue) >= min && parseInt(newValue) <= max) {
+          setValue(newValue);
+          setTime(label, newValue);
+        }
+      } else {
+        switch (e.key) {
+          case "ArrowLeft":
+            if (e.currentTarget.selectionStart === 0) {
+              e.preventDefault();
+              onNavigate("left");
+            }
+            break;
+          case "ArrowRight":
+            if (e.currentTarget.selectionEnd === e.currentTarget.value.length) {
+              e.preventDefault();
+              onNavigate("right");
+            }
+            break;
+          case "ArrowUp":
             e.preventDefault();
-            onNavigate("left");
-          }
-          break;
-        case "ArrowRight":
-          if (e.currentTarget.selectionEnd === e.currentTarget.value.length) {
+            const incrementedValue = Math.min(parseInt(value) + 1, max)
+              .toString()
+              .padStart(2, "0");
+            setValue(incrementedValue);
+            setTime(label, incrementedValue);
+            break;
+          case "ArrowDown":
             e.preventDefault();
-            onNavigate("right");
-          }
-          break;
-        case "ArrowUp":
-          e.preventDefault();
-          const incrementedValue = Math.min(parseInt(value) + 1, max)
-            .toString()
-            .padStart(2, "0");
-          setValue(incrementedValue);
-          setTime(label, incrementedValue);
-          break;
-        case "ArrowDown":
-          e.preventDefault();
-          const decrementedValue = Math.max(parseInt(value) - 1, min)
-            .toString()
-            .padStart(2, "0");
-          setValue(decrementedValue);
-          setTime(label, decrementedValue);
-          break;
+            const decrementedValue = Math.max(parseInt(value) - 1, min)
+              .toString()
+              .padStart(2, "0");
+            setValue(decrementedValue);
+            setTime(label, decrementedValue);
+            break;
+        }
       }
     },
     [min, max, value, onNavigate, label, setTime]
