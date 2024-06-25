@@ -1,8 +1,7 @@
 import clsx from "clsx";
-import React, { forwardRef, useCallback, useRef } from "react";
+import React, { forwardRef, useRef } from "react";
 import useFocusClass from "./hooks/useFocusClass";
-import useHandleKeyDown from "./hooks/useHandleKeyDown";
-import { useTimeStore } from "./store/timeStore";
+import useNumericInputLogic from "./hooks/useNumericInputs";
 
 interface NumericInputProps {
   min: number;
@@ -15,76 +14,17 @@ interface NumericInputProps {
 const NumericInput = forwardRef<HTMLInputElement, NumericInputProps>(
   ({ min, max, label, suffix = "", onNavigate }, ref) => {
     const isFocused = useRef(false);
-    const { hours, minutes, seconds, setHours, setMinutes, setSeconds } =
-      useTimeStore();
 
-    const getValue = useCallback(() => {
-      switch (label) {
-        case "h":
-          return hours;
-        case "min":
-          return minutes;
-        case "sec":
-          return seconds;
-        default:
-          return "00";
-      }
-    }, [label, hours, minutes, seconds]);
-
-    const setValue = useCallback(
-      (value: string) => {
-        switch (label) {
-          case "h":
-            setHours(value);
-            break;
-          case "min":
-            setMinutes(value);
-            break;
-          case "sec":
-            setSeconds(value);
-            break;
-        }
-      },
-      [label, setHours, setMinutes, setSeconds]
-    );
+    const { value, handleKeyDown, handleChange } = useNumericInputLogic({
+      min,
+      max,
+      label,
+      onNavigate,
+    });
 
     const { handleFocus, handleBlur } = useFocusClass(
       ref as React.RefObject<HTMLInputElement>,
       "bg-[#894889] text-white"
-    );
-
-    const increment = useCallback(() => {
-      const numericValue = parseInt(getValue(), 10);
-      if (numericValue < max) {
-        const newValue = (numericValue + 1).toString().padStart(2, "0");
-        setValue(newValue);
-      }
-    }, [getValue, setValue, max]);
-
-    const decrement = useCallback(() => {
-      const numericValue = parseInt(getValue(), 10);
-      if (numericValue > min) {
-        const newValue = (numericValue - 1).toString().padStart(2, "0");
-        setValue(newValue);
-      }
-    }, [getValue, setValue, min]);
-
-    const handleKeyDown = useHandleKeyDown(onNavigate, increment, decrement);
-
-    const handleChange = useCallback(
-      (event: React.ChangeEvent<HTMLInputElement>) => {
-        const inputValue = event.target.value;
-        const lastDigit = inputValue[inputValue.length - 1];
-        const tentativeValue = getValue()[1] + lastDigit;
-        const numericValue = parseInt(tentativeValue, 10);
-
-        if (numericValue >= min && numericValue <= max) {
-          setValue(tentativeValue);
-        } else {
-          setValue("0" + lastDigit);
-        }
-      },
-      [min, max, getValue, setValue]
     );
 
     return (
@@ -102,7 +42,7 @@ const NumericInput = forwardRef<HTMLInputElement, NumericInputProps>(
                 "bg-[#894889] text-white": isFocused.current,
               }
             )}
-            value={getValue()}
+            value={value}
             onChange={handleChange}
             onKeyDown={handleKeyDown}
             maxLength={3}
