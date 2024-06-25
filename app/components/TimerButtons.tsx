@@ -47,7 +47,7 @@ const TimerButtons = ({
       >
         Stop
       </button>
-      {isRunning && <p>Time left: {timeLeft} seconds</p>}
+      {isRunning && <p className="text-white">Time left: {timeLeft} seconds</p>}
     </div>
   );
 };

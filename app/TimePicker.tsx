@@ -8,8 +8,8 @@ interface TimePickerProps {
   startTimer: () => void;
   stopTimer: () => void;
   isRunning: boolean;
-  onStart: () => void;
-  onStop: () => void;
+  // onStart: () => void;
+  // onStop: () => void;
 }
 
 const TimePicker = ({ startTimer, stopTimer, isRunning }: TimePickerProps) => {
