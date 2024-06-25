@@ -1,5 +1,4 @@
-"use client";
-
+import clsx from "clsx";
 import React, { forwardRef, useCallback, useRef } from "react";
 import useFocusClass from "./hooks/useFocusClass";
 import useHandleKeyDown from "./hooks/useHandleKeyDown";
@@ -9,11 +8,12 @@ interface NumericInputProps {
   min: number;
   max: number;
   label: string;
+  suffix?: string;
   onNavigate: (direction: "left" | "right") => void;
 }
 
 const NumericInput = forwardRef<HTMLInputElement, NumericInputProps>(
-  ({ min, max, label, onNavigate }, ref) => {
+  ({ min, max, label, suffix = "", onNavigate }, ref) => {
     const { value, increment, decrement, setValue } = useIncrementDecrement(
       min,
       max,
@@ -51,20 +51,34 @@ const NumericInput = forwardRef<HTMLInputElement, NumericInputProps>(
 
     return (
       <div className="flex flex-col items-center">
-        <label className="mb-1 font-medium text-sm">{label}</label>
-        <input
-          ref={ref}
-          type="text"
-          className={`w-20 font-bold text-center text-lg cursor-default caret-transparent outline-none rounded ${
-            isFocused.current ? "bg-[#894889] text-white" : ""
-          }`}
-          value={value}
-          onChange={handleChange}
-          onKeyDown={handleKeyDown}
-          maxLength={3}
-          onFocus={handleFocus}
-          onBlur={handleBlur}
-        />
+        <label className="items-center mb-1 font-medium text-gray-200 text-sm">
+          {label}
+        </label>
+        <div className="flex items-center rounded-lg">
+          <input
+            ref={ref}
+            type="text"
+            className={clsx(
+              "w-20 font-bold text-center text-6xl cursor-default caret-transparent outline-none rounded text-gray-100 bg-[#1E1E1E] focus:bg-[#894889] focus:text-white",
+              {
+                "bg-[#894889] text-white": isFocused.current,
+              }
+            )}
+            value={value}
+            onChange={handleChange}
+            onKeyDown={handleKeyDown}
+            maxLength={3}
+            onFocus={() => {
+              isFocused.current = true;
+              handleFocus();
+            }}
+            onBlur={() => {
+              isFocused.current = false;
+              handleBlur();
+            }}
+          />
+          <span className="ml-1 text-4xl text-gray-100">{suffix}</span>
+        </div>
       </div>
     );
   }

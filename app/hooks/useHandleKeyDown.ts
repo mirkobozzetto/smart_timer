@@ -1,5 +1,16 @@
 import { useCallback } from "react";
 
+const moveFocus = (input: HTMLInputElement, direction: "left" | "right") => {
+  if (direction === "left" && input.selectionStart === 0) {
+    input.setSelectionRange(0, 0);
+  } else if (
+    direction === "right" &&
+    input.selectionEnd === input.value.length
+  ) {
+    input.setSelectionRange(input.value.length, input.value.length);
+  }
+};
+
 const useHandleKeyDown = (
   onNavigate: (direction: "left" | "right") => void,
   increment: () => void,
