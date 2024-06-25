@@ -16,6 +16,13 @@ interface NumericInputProps {
   onNavigate: (direction: TimeDirection) => void;
 }
 
+/**
+ *
+ * @param param0
+ * @returns
+ * @description
+ * NumericInput component
+ */
 const NumericInput = forwardRef<HTMLInputElement, NumericInputProps>(
   ({ min, max, label, suffix = "", onNavigate }, ref) => {
     const timeUnit = shortLabelToTimeUnit[label as ShortLabel];
@@ -26,11 +33,25 @@ const NumericInput = forwardRef<HTMLInputElement, NumericInputProps>(
       onNavigate,
     });
 
+    /**
+     * Handle the focus and blur events of the input
+     * @param ref The ref of the input
+     * @returns void
+     * @description
+     * This function is called when the input is focused or blurred.
+     * It updates the isFocused state and adds or removes the appropriate classes from the input element.
+     */
     const { handleFocus, handleBlur, isFocused } = useFocusClass(
       ref as React.RefObject<HTMLInputElement>,
       "bg-[#894889] text-white"
     );
 
+    /**
+     * Render the NumericInput component
+     * @returns JSX.Element
+     * @description
+     * This function renders the NumericInput component with the appropriate styles and behaviors.
+     */
     return (
       <div className="flex flex-col items-center">
         <label className="items-center mb-1 font-medium text-gray-200 text-sm">

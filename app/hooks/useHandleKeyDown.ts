@@ -1,5 +1,11 @@
 import { useCallback } from "react";
-
+/**
+ *
+ * @param onNavigate
+ * @param increment
+ * @param decrement
+ * @returns
+ */
 const useHandleKeyDown = (
   onNavigate: (direction: "left" | "right") => void,
   increment: () => void,

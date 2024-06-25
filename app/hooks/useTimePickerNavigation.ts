@@ -17,6 +17,15 @@ const useTimePickerNavigation = () => {
     []
   );
 
+  /**
+   * Handle navigation between time units
+   * @param from The current time unit
+   * @param direction The direction of navigation
+   * @returns void
+   * @description
+   * This function is called when the user navigates between time units.
+   * It updates the refs of the input fields and selects the next unit.
+   */
   const handleNavigate = useCallback(
     (from: TimeUnit, direction: Direction) => {
       const nextUnitMap: Record<TimeUnit, Record<Direction, TimeUnit>> = {

@@ -9,6 +9,18 @@ interface UseTimerProps {
   initialSeconds: number;
 }
 
+/**
+ *
+ * @param param0
+ * @returns
+ * @description
+ * This function returns an object with the following properties:
+ * - startTimer: A function that starts the timer.
+ * - stopTimer: A function that stops the timer.
+ * - timeLeft: The time left in seconds.
+ * - isRunning: A boolean indicating whether the timer is running.
+ * It also updates the timeLeft state and calls the tick function every 1000 milliseconds.
+ */
 const useTimer = ({
   hoursRef,
   minutesRef,

@@ -1,5 +1,4 @@
 export type TimeUnit = "hours" | "minutes" | "seconds";
-export type TimeDirection = "left" | "right";
 
 export type ShortLabel = "h" | "min" | "sec";
 
@@ -14,3 +13,5 @@ export const timeUnitToShortLabel: Record<TimeUnit, ShortLabel> = {
   minutes: "min",
   seconds: "sec",
 };
+
+export type TimeDirection = "left" | "right";

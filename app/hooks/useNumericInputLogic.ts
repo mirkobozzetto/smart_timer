@@ -9,6 +9,17 @@ interface UseNumericInputLogicProps {
   onNavigate: (direction: TimeDirection) => void;
 }
 
+/**
+ *
+ * @param {UseNumericInputLogicProps} param0
+ * @returns {React.Dispatch<React.SetStateAction<string>>}
+ * @description
+ * This function returns an object with the following properties:
+ * - value: The current value of the input field.
+ * - handleKeyDown: A function that handles the keydown event of the input field.
+ * - handleChange: A function that handles the change event of the input field.
+ * It also updates the value state and calls the setTime function with the new value.
+ */
 const useNumericInputLogic = ({
   min,
   max,
@@ -22,82 +33,40 @@ const useNumericInputLogic = ({
     setValue(storeValue || "00");
   }, [storeValue]);
 
-  // const handleKeyDown = useCallback(
-  //   (e: React.KeyboardEvent<HTMLInputElement>) => {
-  //     if (/^[0-9]$/.test(e.key)) {
-  //       e.preventDefault();
-  //       const newValue = (value.slice(-1) + e.key).padStart(2, "0");
-  //       if (parseInt(newValue) >= min && parseInt(newValue) <= max) {
-  //         setValue(newValue);
-  //         setTime(label, newValue);
-  //       }
-  //     } else {
-  //       switch (e.key) {
-  //         case "ArrowLeft":
-  //           if (e.currentTarget.selectionStart === 0) {
-  //             e.preventDefault();
-  //             onNavigate("left");
-  //           }
-  //           break;
-  //         case "ArrowRight":
-  //           if (e.currentTarget.selectionEnd === e.currentTarget.value.length) {
-  //             e.preventDefault();
-  //             onNavigate("right");
-  //           }
-  //           break;
-  //         case "ArrowUp":
-  //           e.preventDefault();
-  //           const incrementedValue = Math.min(parseInt(value) + 1, max)
-  //             .toString()
-  //             .padStart(2, "0");
-  //           setValue(incrementedValue);
-  //           setTime(label, incrementedValue);
-  //           break;
-  //         case "ArrowDown":
-  //           e.preventDefault();
-  //           const decrementedValue = Math.max(parseInt(value) - 1, min)
-  //             .toString()
-  //             .padStart(2, "0");
-  //           setValue(decrementedValue);
-  //           setTime(label, decrementedValue);
-  //           break;
-  //       }
-  //     }
-  //   },
-  //   [min, max, value, onNavigate, label, setTime]
-  // );
-
   const handleKeyDown = useCallback(
     (e: React.KeyboardEvent<HTMLInputElement>) => {
       if (/^[0-9]$/.test(e.key)) {
         e.preventDefault();
         let newValue: string;
 
+        /**
+         * If the field is empty, start a new input
+         */
         if (value === "00") {
-          // Si le champ est vide, commencez une nouvelle saisie
           newValue = e.key;
         } else if (value.length === 2 && value !== "00") {
-          // Si deux chiffres ont déjà été saisis et ce n'est pas '00', décalez et ajoutez le nouveau chiffre
           newValue = value.slice(-1) + e.key;
         } else {
-          // Sinon, ajoutez le nouveau chiffre à la fin
           newValue = value + e.key;
         }
 
-        // Vérifiez si la nouvelle valeur est dans les limites
+        /**
+         * Check if the new value is within the min and max range
+         */
         const numericValue = parseInt(newValue);
         if (numericValue >= min && numericValue <= max) {
           newValue = newValue.padStart(2, "0");
           setValue(newValue);
           setTime(label, newValue);
         } else {
-          // Si la valeur est hors limites, gardez seulement le dernier chiffre saisi
+          /**
+           * If the value is out of range, keep only the last digit input
+           */
           newValue = e.key.padStart(2, "0");
           setValue(newValue);
           setTime(label, newValue);
         }
       } else {
-        // Le reste du code pour les touches fléchées reste inchangé
         switch (e.key) {
           case "ArrowLeft":
             if (e.currentTarget.selectionStart === 0) {
@@ -133,6 +102,14 @@ const useNumericInputLogic = ({
     [min, max, value, onNavigate, label, setTime]
   );
 
+  /**
+   * Handle the change event of the input field
+   * @param e The event object
+   * @returns void
+   * @description
+   * This function is called when the input field value changes.
+   * It updates the value state and calls the setTime function with the new value.
+   */
   const handleChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
       const newValue = e.target.value.replace(/\D/g, "");
