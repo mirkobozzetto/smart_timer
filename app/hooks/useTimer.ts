@@ -4,9 +4,22 @@ interface UseTimerProps {
   hoursRef: React.RefObject<HTMLInputElement>;
   minutesRef: React.RefObject<HTMLInputElement>;
   secondsRef: React.RefObject<HTMLInputElement>;
+  initialHours: number;
+  initialMinutes: number;
+  initialSeconds: number;
 }
 
-const useTimer = ({ hoursRef, minutesRef, secondsRef }: UseTimerProps) => {
+const useTimer = ({
+  hoursRef,
+  minutesRef,
+  secondsRef,
+  initialHours,
+  initialMinutes,
+  initialSeconds,
+}: UseTimerProps) => {
+  const [hours, setHours] = useState(initialHours);
+  const [minutes, setMinutes] = useState(initialMinutes);
+  const [seconds, setSeconds] = useState(initialSeconds);
   const [isRunning, setIsRunning] = useState(false);
   const [timeLeft, setTimeLeft] = useState(0);
 
