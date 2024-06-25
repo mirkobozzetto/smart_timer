@@ -1,28 +1,32 @@
 import clsx from "clsx";
-import React, { forwardRef, useRef } from "react";
-import useFocusClass from "./hooks/useFocusClass";
-import useNumericInputLogic from "./hooks/useNumericInputs";
+import React, { forwardRef } from "react";
+import useFocusClass from "../hooks/useFocusClass";
+import useNumericInputLogic from "../hooks/useNumericInputLogic";
+import {
+  ShortLabel,
+  shortLabelToTimeUnit,
+  TimeDirection,
+} from "../types/types";
 
 interface NumericInputProps {
   min: number;
   max: number;
-  label: string;
+  label: ShortLabel;
   suffix?: string;
-  onNavigate: (direction: "left" | "right") => void;
+  onNavigate: (direction: TimeDirection) => void;
 }
 
 const NumericInput = forwardRef<HTMLInputElement, NumericInputProps>(
   ({ min, max, label, suffix = "", onNavigate }, ref) => {
-    const isFocused = useRef(false);
-
+    const timeUnit = shortLabelToTimeUnit[label as ShortLabel];
     const { value, handleKeyDown, handleChange } = useNumericInputLogic({
       min,
       max,
-      label,
+      label: timeUnit,
       onNavigate,
     });
 
-    const { handleFocus, handleBlur } = useFocusClass(
+    const { handleFocus, handleBlur, isFocused } = useFocusClass(
       ref as React.RefObject<HTMLInputElement>,
       "bg-[#894889] text-white"
     );
@@ -39,21 +43,19 @@ const NumericInput = forwardRef<HTMLInputElement, NumericInputProps>(
             className={clsx(
               "w-24 font-bold text-center text-6xl cursor-default caret-transparent outline-none rounded text-gray-100 bg-[#1E1E1E] focus:bg-[#894889] focus:text-white",
               {
-                "bg-[#894889] text-white": isFocused.current,
+                "bg-[#894889] text-white": isFocused,
               }
             )}
             value={value}
             onChange={handleChange}
             onKeyDown={handleKeyDown}
-            maxLength={3}
-            onFocus={() => {
-              isFocused.current = true;
+            maxLength={2}
+            onFocus={(e) => {
               handleFocus();
+              e.target.select();
             }}
-            onBlur={() => {
-              isFocused.current = false;
-              handleBlur();
-            }}
+            onBlur={handleBlur}
+            onSelect={(e) => e.currentTarget.select()}
           />
           <span className="ml-1 text-4xl text-gray-100">{suffix}</span>
         </div>
@@ -67,10 +69,9 @@ NumericInput.displayName = "NumericInput";
 export default React.memo(NumericInput);
 
 // import clsx from "clsx";
-// import React, { forwardRef, useCallback, useRef } from "react";
-// import useFocusClass from "./hooks/useFocusClass";
-// import useHandleKeyDown from "./hooks/useHandleKeyDown";
-// import useIncrementDecrement from "./hooks/useIncrementDecrement";
+// import React, { forwardRef, useRef } from "react";
+// import useFocusClass from "../hooks/useFocusClass";
+// import useNumericInputLogic from "../hooks/useNumericInputLogic";
 
 // interface NumericInputProps {
 //   min: number;
@@ -82,33 +83,18 @@ export default React.memo(NumericInput);
 
 // const NumericInput = forwardRef<HTMLInputElement, NumericInputProps>(
 //   ({ min, max, label, suffix = "", onNavigate }, ref) => {
-//     const { value, increment, decrement, setValue } = useIncrementDecrement(
+//     const isFocused = useRef(false);
+
+//     const { value, handleKeyDown, handleChange } = useNumericInputLogic({
 //       min,
 //       max,
-//       "00"
-//     );
-//     const isFocused = useRef(false);
+//       label,
+//       onNavigate,
+//     });
 
 //     const { handleFocus, handleBlur } = useFocusClass(
 //       ref as React.RefObject<HTMLInputElement>,
 //       "bg-[#894889] text-white"
-//     );
-//     const handleKeyDown = useHandleKeyDown(onNavigate, increment, decrement);
-
-//     const handleChange = useCallback(
-//       (event: React.ChangeEvent<HTMLInputElement>) => {
-//         const inputValue = event.target.value;
-//         const lastDigit = inputValue[inputValue.length - 1];
-//         const tentativeValue = value[1] + lastDigit;
-//         const numericValue = parseInt(tentativeValue, 10);
-
-//         if (numericValue >= min && numericValue <= max) {
-//           setValue(tentativeValue);
-//         } else {
-//           setValue("0" + lastDigit);
-//         }
-//       },
-//       [min, max, value, setValue]
 //     );
 
 //     return (
@@ -138,6 +124,7 @@ export default React.memo(NumericInput);
 //               isFocused.current = false;
 //               handleBlur();
 //             }}
+//             // onSelect
 //           />
 //           <span className="ml-1 text-4xl text-gray-100">{suffix}</span>
 //         </div>

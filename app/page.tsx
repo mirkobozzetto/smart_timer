@@ -1,6 +1,6 @@
 "use client";
 
-import TimePicker from "./TimePicker";
+import TimePicker from "./components/TimePicker";
 
 export default function Home() {
   // const [isRunning, setIsRunning] = useState(false);

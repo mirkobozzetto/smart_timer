@@ -1,8 +1,8 @@
 "use client";
-
+import useTimePickerNavigation from "../hooks/useTimePickerNavigation";
+import { TimeDirection } from "../types/types";
 import NumericInput from "./NumericInput";
-import TimerButtons from "./components/TimerButtons";
-import useTimePickerNavigation from "./hooks/useTimePickerNavigation";
+import TimerButtons from "./TimerButtons";
 
 const TimePicker = () => {
   const { hoursRef, minutesRef, secondsRef, handleNavigate } =
@@ -15,7 +15,9 @@ const TimePicker = () => {
           min={0}
           max={23}
           label="h"
-          onNavigate={(direction) => handleNavigate("hours", direction)}
+          onNavigate={(direction: TimeDirection) =>
+            handleNavigate("hours", direction)
+          }
           ref={hoursRef}
           suffix=":"
         />
@@ -23,7 +25,9 @@ const TimePicker = () => {
           min={0}
           max={59}
           label="min"
-          onNavigate={(direction) => handleNavigate("minutes", direction)}
+          onNavigate={(direction: TimeDirection) =>
+            handleNavigate("minutes", direction)
+          }
           ref={minutesRef}
           suffix=":"
         />
@@ -31,7 +35,9 @@ const TimePicker = () => {
           min={0}
           max={59}
           label="sec"
-          onNavigate={(direction) => handleNavigate("seconds", direction)}
+          onNavigate={(direction: TimeDirection) =>
+            handleNavigate("seconds", direction)
+          }
           ref={secondsRef}
         />
       </div>
@@ -44,17 +50,11 @@ export default TimePicker;
 
 // "use client";
 
+// import useTimePickerNavigation from "../hooks/useTimePickerNavigation";
 // import NumericInput from "./NumericInput";
-// import TimerButtons from "./components/TimerButtons";
-// import useTimePickerNavigation from "./hooks/useTimePickerNavigation";
+// import TimerButtons from "./TimerButtons";
 
-// interface TimePickerProps {
-//   startTimer: () => void;
-//   stopTimer: () => void;
-//   isRunning: boolean;
-// }
-
-// const TimePicker = ({ startTimer, stopTimer, isRunning }: TimePickerProps) => {
+// const TimePicker = () => {
 //   const { hoursRef, minutesRef, secondsRef, handleNavigate } =
 //     useTimePickerNavigation();
 
@@ -85,14 +85,7 @@ export default TimePicker;
 //           ref={secondsRef}
 //         />
 //       </div>
-//       <TimerButtons
-//         hoursRef={hoursRef}
-//         minutesRef={minutesRef}
-//         secondsRef={secondsRef}
-//         isRunning={isRunning}
-//         startTimer={startTimer}
-//         stopTimer={stopTimer}
-//       />
+//       <TimerButtons />
 //     </div>
 //   );
 // };
