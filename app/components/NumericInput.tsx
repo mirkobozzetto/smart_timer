@@ -79,7 +79,7 @@ const NumericInput = forwardRef<HTMLInputElement, NumericInputProps>(
             onBlur={handleBlur}
             onSelect={(e) => e.currentTarget.select()}
           />
-          <span className="ml-1 text-4xl text-gray-100">{suffix}</span>
+          <span className="text-4xl text-gray-100">{suffix}</span>
         </div>
       </div>
     );
