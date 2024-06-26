@@ -25,6 +25,13 @@ interface NumericInputProps {
  */
 const NumericInput = forwardRef<HTMLInputElement, NumericInputProps>(
   ({ min, max, label, suffix = "", onNavigate }, ref) => {
+    /**
+     * Convert the label to the corresponding time unit
+     * @param label The label of the input field
+     * @returns The time unit corresponding to the label
+     * @description
+     * This function converts the label to the corresponding time unit.
+     */
     const timeUnit = shortLabelToTimeUnit[label as ShortLabel];
     const { value, handleKeyDown, handleChange } = useNumericInputLogic({
       min,
@@ -46,12 +53,6 @@ const NumericInput = forwardRef<HTMLInputElement, NumericInputProps>(
       "bg-[#894889] text-white"
     );
 
-    /**
-     * Render the NumericInput component
-     * @returns JSX.Element
-     * @description
-     * This function renders the NumericInput component with the appropriate styles and behaviors.
-     */
     return (
       <div className="flex flex-col items-center">
         <label className="items-center mb-1 font-medium text-gray-200 text-sm">
@@ -62,8 +63,8 @@ const NumericInput = forwardRef<HTMLInputElement, NumericInputProps>(
             ref={ref}
             type="text"
             className={clsx(
-              "w-20 font-bold text-center text-6xl cursor-default caret-transparent outline-none rounded text-gray-100 bg-[#1E1E1E] focus:bg-[#894889] focus:text-white hover:bg-[#894889]/50 hover:text-white",
-              "selection:bg-transparent",
+              "w-20 font-bold text-center text-6xl cursor-default caret-transparent outline-none rounded text-gray-100 bg-[#1E1E1E]",
+              "selection:bg-transparent  focus:bg-[#894889] focus:text-white hover:bg-[#894889]/50 hover:text-white",
               {
                 "bg-[#894889] text-white": isFocused,
               }
@@ -79,7 +80,9 @@ const NumericInput = forwardRef<HTMLInputElement, NumericInputProps>(
             onBlur={handleBlur}
             onSelect={(e) => e.currentTarget.select()}
           />
-          <span className="text-4xl text-gray-100">{suffix}</span>
+          <span className="text-4xl text-gray-100 cursor-default">
+            {suffix}
+          </span>
         </div>
       </div>
     );
