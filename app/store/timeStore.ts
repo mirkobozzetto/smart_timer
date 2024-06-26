@@ -13,6 +13,7 @@ interface TimeState {
   tick: () => void;
   resetTimer: () => void;
   setTimeLeft: (value: number) => void;
+  resetAll: () => void; // Nouvelle fonction
 }
 
 export const useTimeStore = create<TimeState>((set) => ({
@@ -33,13 +34,19 @@ export const useTimeStore = create<TimeState>((set) => ({
     }),
   resetTimer: () =>
     set({
+      isRunning: false,
+      timeLeft: 0,
+    }),
+  setTimeLeft: (value) => set({ timeLeft: value }),
+  resetAll: () =>
+    set({
+      // Nouvelle fonction
       hours: "00",
       minutes: "00",
       seconds: "00",
       isRunning: false,
       timeLeft: 0,
     }),
-  setTimeLeft: (value) => set({ timeLeft: value }),
 }));
 
 // import { create } from "zustand";
@@ -56,6 +63,7 @@ export const useTimeStore = create<TimeState>((set) => ({
 //   stopTimer: () => void;
 //   tick: () => void;
 //   resetTimer: () => void;
+//   setTimeLeft: (value: number) => void;
 // }
 
 // export const useTimeStore = create<TimeState>((set) => ({
@@ -65,14 +73,7 @@ export const useTimeStore = create<TimeState>((set) => ({
 //   isRunning: false,
 //   timeLeft: 0,
 //   setTime: (unit, value) => set({ [unit]: value }),
-//   startTimer: () =>
-//     set((state) => {
-//       const totalSeconds =
-//         parseInt(state.hours) * 3600 +
-//         parseInt(state.minutes) * 60 +
-//         parseInt(state.seconds);
-//       return { isRunning: true, timeLeft: totalSeconds };
-//     }),
+//   startTimer: () => set({ isRunning: true }),
 //   stopTimer: () => set({ isRunning: false }),
 //   tick: () =>
 //     set((state) => {
@@ -88,5 +89,6 @@ export const useTimeStore = create<TimeState>((set) => ({
 //       seconds: "00",
 //       isRunning: false,
 //       timeLeft: 0,
-//     }), // Ajoutez cette ligne
+//     }),
+//   setTimeLeft: (value) => set({ timeLeft: value }),
 // }));

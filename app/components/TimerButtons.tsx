@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useTimeStore } from "../store/timeStore";
 import CircularTimer from "./CircularTimer";
 
@@ -8,11 +8,17 @@ const TimerButtons = () => {
     minutes,
     seconds,
     startTimer,
-    stopTimer,
     isRunning,
     setTimeLeft,
+    timeLeft,
   } = useTimeStore();
   const [showCircularTimer, setShowCircularTimer] = useState(false);
+
+  useEffect(() => {
+    if (timeLeft === 0 && !isRunning) {
+      setShowCircularTimer(false);
+    }
+  }, [timeLeft, isRunning]);
 
   const handleStartTimer = () => {
     const totalSeconds =
@@ -20,17 +26,18 @@ const TimerButtons = () => {
     if (totalSeconds > 0) {
       setTimeLeft(totalSeconds);
       setShowCircularTimer(true);
+      startTimer();
     }
   };
+
+  const isTimerSet =
+    parseInt(hours) > 0 || parseInt(minutes) > 0 || parseInt(seconds) > 0;
 
   return (
     <div className="text-center">
       <button
         onClick={handleStartTimer}
-        disabled={
-          isRunning ||
-          parseInt(hours) + parseInt(minutes) + parseInt(seconds) === 0
-        }
+        disabled={isRunning || !isTimerSet}
         className="m-2 px-4 py-2 rounded text-white"
       >
         Start
@@ -42,7 +49,7 @@ const TimerButtons = () => {
 
 export default TimerButtons;
 
-// import { useEffect, useState } from "react";
+// import { useState } from "react";
 // import { useTimeStore } from "../store/timeStore";
 // import CircularTimer from "./CircularTimer";
 
@@ -54,49 +61,33 @@ export default TimerButtons;
 //     startTimer,
 //     stopTimer,
 //     isRunning,
-//     timeLeft,
-//     tick,
+//     setTimeLeft,
 //   } = useTimeStore();
-//   const [hasStarted, setHasStarted] = useState(false);
-
-//   useEffect(() => {
-//     let timerId: NodeJS.Timeout | undefined;
-//     if (isRunning && timeLeft > 0) {
-//       timerId = setInterval(tick, 1000);
-//     } else if (!isRunning) {
-//       clearInterval(timerId);
-//     }
-//     return () => clearInterval(timerId);
-//   }, [isRunning, timeLeft, tick]);
+//   const [showCircularTimer, setShowCircularTimer] = useState(false);
 
 //   const handleStartTimer = () => {
-//     if (parseInt(hours) + parseInt(minutes) + parseInt(seconds) > 0) {
+//     const totalSeconds =
+//       parseInt(hours) * 3600 + parseInt(minutes) * 60 + parseInt(seconds);
+//     if (totalSeconds > 0) {
+//       setTimeLeft(totalSeconds);
+//       setShowCircularTimer(true);
 //       startTimer();
-//       setHasStarted(true);
 //     }
 //   };
+
+//   const isTimerSet =
+//     parseInt(hours) > 0 || parseInt(minutes) > 0 || parseInt(seconds) > 0;
 
 //   return (
 //     <div className="text-center">
 //       <button
 //         onClick={handleStartTimer}
-//         disabled={
-//           isRunning ||
-//           parseInt(hours) + parseInt(minutes) + parseInt(seconds) === 0
-//         }
+//         disabled={isRunning || !isTimerSet}
 //         className="m-2 px-4 py-2 rounded text-white"
 //       >
 //         Start
 //       </button>
-//       <button
-//         onClick={stopTimer}
-//         disabled={!isRunning}
-//         className="m-2 px-4 py-2 rounded text-white"
-//       >
-//         Stop
-//       </button>
-//       {/* {isRunning && <p className="text-white">Time left: {timeLeft} seconds</p>} */}
-//       {hasStarted && <CircularTimer />}
+//       {showCircularTimer && <CircularTimer />}
 //     </div>
 //   );
 // };

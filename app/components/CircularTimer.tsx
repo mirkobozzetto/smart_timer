@@ -13,11 +13,13 @@ const CircularTimer = ({ size = 200 }: CircularTimerProps) => {
     isRunning,
     startTimer,
     stopTimer,
-    resetTimer,
+    // resetTimer,
+    resetAll,
     timeLeft,
     setTimeLeft,
   } = useTimeStore();
   const [localTimeLeft, setLocalTimeLeft] = useState(timeLeft * 100);
+  const [isVisible, setIsVisible] = useState(true);
 
   useEffect(() => {
     setLocalTimeLeft(timeLeft * 100);
@@ -30,6 +32,7 @@ const CircularTimer = ({ size = 200 }: CircularTimerProps) => {
         setLocalTimeLeft((prevTime) => {
           if (prevTime <= 1) {
             stopTimer();
+            setIsVisible(false);
             return 0;
           }
           return prevTime - 1;
@@ -63,11 +66,12 @@ const CircularTimer = ({ size = 200 }: CircularTimerProps) => {
 
   const handleDelete = () => {
     stopTimer();
-    resetTimer();
+    resetAll();
     setLocalTimeLeft(0);
+    setIsVisible(false);
   };
 
-  return (
+  return isVisible ? (
     <div className="flex flex-col items-center border-2 border-white/20 p-5 rounded-lg">
       <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`}>
         <circle
@@ -107,7 +111,7 @@ const CircularTimer = ({ size = 200 }: CircularTimerProps) => {
         </button>
       </div>
     </div>
-  );
+  ) : null;
 };
 
 export default CircularTimer;
