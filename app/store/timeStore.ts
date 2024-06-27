@@ -33,21 +33,41 @@ export const useTimeStore = create<TimeState>((set) => ({
     set({ [`input${unit.charAt(0).toUpperCase() + unit.slice(1)}`]: value }),
 
   createTimer: () =>
-    set((state) => ({
-      timer: {
-        hours: state.inputHours,
-        minutes: state.inputMinutes,
-        seconds: state.inputSeconds,
-        timeLeft:
-          parseInt(state.inputHours) * 3600 +
-          parseInt(state.inputMinutes) * 60 +
-          parseInt(state.inputSeconds),
-        isRunning: false,
-      },
-      inputHours: "00",
-      inputMinutes: "00",
-      inputSeconds: "00",
-    })),
+    set((state) => {
+      if (state.timer) return state; // Ne rien faire si un timer existe déjà
+      return {
+        timer: {
+          hours: state.inputHours,
+          minutes: state.inputMinutes,
+          seconds: state.inputSeconds,
+          timeLeft:
+            parseInt(state.inputHours) * 3600 +
+            parseInt(state.inputMinutes) * 60 +
+            parseInt(state.inputSeconds),
+          isRunning: false,
+        },
+        inputHours: "00",
+        inputMinutes: "00",
+        inputSeconds: "00",
+      };
+    }),
+
+  // createTimer: () =>
+  //   set((state) => ({
+  //     timer: {
+  //       hours: state.inputHours,
+  //       minutes: state.inputMinutes,
+  //       seconds: state.inputSeconds,
+  //       timeLeft:
+  //         parseInt(state.inputHours) * 3600 +
+  //         parseInt(state.inputMinutes) * 60 +
+  //         parseInt(state.inputSeconds),
+  //       isRunning: false,
+  //     },
+  //     inputHours: "00",
+  //     inputMinutes: "00",
+  //     inputSeconds: "00",
+  //   })),
 
   startTimer: () =>
     set((state) => ({

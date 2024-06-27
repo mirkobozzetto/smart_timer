@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { memo, useCallback, useEffect, useRef, useState } from "react";
 import { useTimeStore } from "../store/timeStore";
 
 interface CircularTimerProps {
@@ -6,22 +6,29 @@ interface CircularTimerProps {
 }
 
 const CircularTimer = ({ size = 200 }: CircularTimerProps) => {
-  const { timer, startTimer, stopTimer, deleteTimer } = useTimeStore();
+  const { timer, startTimer, stopTimer, deleteTimer, createTimer } =
+    useTimeStore();
   const [timeLeft, setTimeLeft] = useState<number>(0);
   const [initialTime, setInitialTime] = useState<number>(0);
+  const initializedRef = useRef(false);
 
   useEffect(() => {
-    console.log("Timer object updated: ", timer);
-    if (timer) {
+    if (timer && !initializedRef.current) {
+      console.log("Timer object updated: ", timer);
       const totalTime = timer.timeLeft * 100;
       setTimeLeft(totalTime);
       setInitialTime(totalTime);
       console.log("Initial total time set:", totalTime);
+      initializedRef.current = true;
     }
   }, [timer]);
 
+  const handleCreateTimer = useCallback(() => {
+    createTimer();
+  }, [createTimer]);
+
   useEffect(() => {
-    let interval: NodeJS.Timeout;
+    let interval: NodeJS.Timeout | null = null;
     console.log("Timer running state changed:", timer?.isRunning);
     if (timer?.isRunning) {
       interval = setInterval(() => {
@@ -29,7 +36,7 @@ const CircularTimer = ({ size = 200 }: CircularTimerProps) => {
           const newTime = prevTime - 1;
           console.log("Timer tick:", newTime);
           if (newTime <= 0) {
-            clearInterval(interval);
+            if (interval) clearInterval(interval);
             stopTimer();
             console.log("Timer reached zero and stopped");
             return 0;
@@ -37,16 +44,14 @@ const CircularTimer = ({ size = 200 }: CircularTimerProps) => {
           return newTime;
         });
       }, 10);
-    } else {
-      clearInterval(interval);
     }
     return () => {
-      clearInterval(interval);
+      if (interval) clearInterval(interval);
       console.log("Interval cleared");
     };
   }, [timer?.isRunning, stopTimer]);
 
-  const handleStartPause = () => {
+  const handleStartPause = useCallback(() => {
     console.log(
       "Start/Pause button clicked, current running state:",
       timer?.isRunning
@@ -58,12 +63,12 @@ const CircularTimer = ({ size = 200 }: CircularTimerProps) => {
       startTimer();
       console.log("Timer resumed with initial time:", initialTime);
     }
-  };
+  }, [timer?.isRunning, stopTimer, startTimer, timeLeft, initialTime]);
 
-  const handleDelete = () => {
+  const handleDelete = useCallback(() => {
     deleteTimer();
     console.log("Timer deleted");
-  };
+  }, [deleteTimer]);
 
   const radius = size / 2;
   const circumference = 2 * Math.PI * (radius - 10);
@@ -121,7 +126,7 @@ const CircularTimer = ({ size = 200 }: CircularTimerProps) => {
   );
 };
 
-export default CircularTimer;
+export default memo(CircularTimer);
 
 // TODO: version qui ne pause pas et ne reprend pas pour le moment( version actuelle)
 // import { useEffect, useState } from "react";
