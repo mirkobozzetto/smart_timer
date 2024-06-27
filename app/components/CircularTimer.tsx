@@ -105,7 +105,7 @@ const CircularTimer = ({ id, size = 200 }: CircularTimerProps) => {
   };
 
   return (
-    <div className="flex flex-col items-center border-2 border-white/20 p-5 rounded-lg">
+    <div className="flex flex-col items-center border-2 border-white/20 my-5 p-10 rounded-lg min-w-56">
       <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`}>
         <circle
           cx={radius}
@@ -131,16 +131,16 @@ const CircularTimer = ({ id, size = 200 }: CircularTimerProps) => {
       <div className="mt-4 font-thin text-2xl text-white">
         {formatTime(timeLeft)}
       </div>
-      <div className="flex space-x-4 mt-4">
+      <div className="flex justify-between mt-4 w-full">
         <button
-          className="px-4 py-2 rounded text-white"
+          className="py-2 rounded text-white"
           onClick={handleStartPause}
           disabled={timeLeft === 0}
         >
-          {timer?.isRunning ? "Pause" : "Démarrer"}
+          {timer?.isRunning ? "Pause" : "Start"}
         </button>
-        <button className="px-4 py-2 rounded text-white" onClick={handleDelete}>
-          Supprimer
+        <button className="py-2 rounded text-white" onClick={handleDelete}>
+          Delete
         </button>
       </div>
     </div>

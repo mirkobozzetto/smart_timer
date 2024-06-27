@@ -2,6 +2,7 @@ import clsx from "clsx";
 import React, { forwardRef } from "react";
 import useFocusClass from "../hooks/useFocusClass";
 import useNumericInputLogic from "../hooks/useNumericInputLogic";
+
 import {
   ShortLabel,
   shortLabelToTimeUnit,
@@ -62,6 +63,8 @@ const NumericInput = forwardRef<HTMLInputElement, NumericInputProps>(
           <input
             ref={ref}
             type="text"
+            inputMode="numeric"
+            pattern="[0-9]*"
             className={clsx(
               "w-20 font-bold text-center text-6xl cursor-default caret-transparent outline-none rounded text-gray-100 bg-[#1E1E1E]",
               "selection:bg-transparent  focus:bg-[#894889] focus:text-white hover:bg-[#894889]/50 hover:text-white",
@@ -79,6 +82,8 @@ const NumericInput = forwardRef<HTMLInputElement, NumericInputProps>(
             }}
             onBlur={handleBlur}
             onSelect={(e) => e.currentTarget.select()}
+            onContextMenu={(e) => e.preventDefault()}
+            aria-label={`Enter ${label} value`}
           />
           <span className="text-4xl text-gray-100 cursor-default">
             {suffix}
