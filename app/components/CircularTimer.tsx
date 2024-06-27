@@ -15,7 +15,7 @@ const CircularTimer = ({ id, size = 200 }: CircularTimerProps) => {
 
   const [timeLeft, setTimeLeft] = useState<number>(0);
   const [initialTime, setInitialTime] = useState<number>(0);
-  const initializedRef = useRef(false);
+  // const initializedRef = useRef(false);
 
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
@@ -39,13 +39,22 @@ const CircularTimer = ({ id, size = 200 }: CircularTimerProps) => {
     }
   };
 
-  useEffect(() => {
-    if (timer && !initializedRef.current) {
-      const totalTime = timer.timeLeft * 100;
-      setTimeLeft(totalTime);
-      setInitialTime(totalTime);
+  // useEffect(() => {
+  //   if (timer && !initializedRef.current) {
+  //     const totalTime = timer.timeLeft * 100;
+  //     setTimeLeft(totalTime);
+  //     setInitialTime(totalTime);
 
-      initializedRef.current = true;
+  //     initializedRef.current = true;
+  //   }
+  // }, [timer]);
+
+  useEffect(() => {
+    if (timer) {
+      setTimeout(() => {
+        setTimeLeft(timer.timeLeft * 100);
+        setInitialTime(timer.timeLeft * 100);
+      }, 0);
     }
   }, [timer]);
 
@@ -184,9 +193,17 @@ const CircularTimer = ({ id, size = 200 }: CircularTimerProps) => {
           textAnchor="middle"
           dominantBaseline="central"
           fontSize={size / 4}
+          fill="white"
         >
           hello
         </text>
+        {/* <image
+          href="/lottieanim.gif"
+          width={size}
+          height={size}
+          opacity={0.4}
+          preserveAspectRatio="xMidYMid meet"
+        /> */}
       </svg>
 
       <div className="mt-4 font-thin text-2xl text-white">

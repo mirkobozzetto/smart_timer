@@ -8,7 +8,7 @@ type IncrementDecrementHook = (
   value: string;
   increment: () => void;
   decrement: () => void;
-  setValue: (value: string) => void; // Ajout de setValue ici
+  setValue: (value: string) => void;
 };
 
 const useIncrementDecrement: IncrementDecrementHook = (
@@ -44,7 +44,7 @@ const useIncrementDecrement: IncrementDecrementHook = (
     value,
     increment,
     decrement,
-    setValue, // Retourner setValue ici
+    setValue,
   };
 };
 
