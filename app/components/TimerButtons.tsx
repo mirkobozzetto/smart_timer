@@ -1,3 +1,4 @@
+import { v4 as uuidv4 } from "uuid";
 import { useTimeStore } from "../store/timeStore";
 
 const TimerButtons = () => {
@@ -5,7 +6,7 @@ const TimerButtons = () => {
     useTimeStore();
 
   const handleCreateTimer = () => {
-    const id = Date.now().toString();
+    const id = uuidv4();
     createTimer(id);
   };
 
