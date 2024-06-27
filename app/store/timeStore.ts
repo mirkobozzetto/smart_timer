@@ -16,7 +16,6 @@ export type TimeState = {
   inputMinutes: string;
   inputSeconds: string;
   timers: Timer[];
-  // timer: Timer | null;
   setInputTime: (unit: TimeUnit, value: string) => void;
   createTimer: (id: string) => void;
   startTimer: (id: string) => void;
@@ -56,35 +55,6 @@ export const useTimeStore = create<TimeState>((set) => ({
       inputSeconds: "00",
     })),
 
-  // createTimer: () =>
-  //   set((state) => {
-  //     if (state.timer) return state; // Ne rien faire si un timer existe déjà
-  //     return {
-  //       timer: {
-  //         hours: state.inputHours,
-  //         minutes: state.inputMinutes,
-  //         seconds: state.inputSeconds,
-  //         timeLeft:
-  //           parseInt(state.inputHours) * 3600 +
-  //           parseInt(state.inputMinutes) * 60 +
-  //           parseInt(state.inputSeconds),
-  //         isRunning: false,
-  //       },
-  //       inputHours: "00",
-  //       inputMinutes: "00",
-  //       inputSeconds: "00",
-  //     };
-  //   }),
-
-  // startTimer: () =>
-  //   set((state) => ({
-  //     timer: state.timer ? { ...state.timer, isRunning: true } : null,
-  //   })),
-  // stopTimer: () =>
-  //   set((state) => ({
-  //     timer: state.timer ? { ...state.timer, isRunning: false } : null,
-  //   })),
-
   startTimer: (id) =>
     set((state) => ({
       timers: state.timers.map((timer) =>
@@ -120,32 +90,6 @@ export const useTimeStore = create<TimeState>((set) => ({
       }),
     })),
 
-  // tick: () =>
-  //   set((state) => {
-  //     if (state.timer && state.timer.isRunning && state.timer.timeLeft > 0) {
-  //       const newTimeLeft = state.timer.timeLeft - 1;
-  //       return {
-  //         timer: {
-  //           ...state.timer,
-  //           timeLeft: newTimeLeft,
-  //           hours: Math.floor(newTimeLeft / 3600)
-  //             .toString()
-  //             .padStart(2, "0"),
-  //           minutes: Math.floor((newTimeLeft % 3600) / 60)
-  //             .toString()
-  //             .padStart(2, "0"),
-  //           seconds: (newTimeLeft % 60).toString().padStart(2, "0"),
-  //         },
-  //       };
-  //     }
-  //     return state;
-  //   }),
-
-  // setTimeLeft: (value: number) =>
-  //   set((state) => ({
-  //     timer: state.timer ? { ...state.timer, timeLeft: value } : null,
-  //   })),
-
   setTimeLeft: (id: string, value: number) =>
     set((state) => ({
       timers: state.timers.map((timer) =>
@@ -173,20 +117,6 @@ export const useTimeStore = create<TimeState>((set) => ({
     set((state) => ({
       timers: state.timers.filter((timer) => timer.id !== id),
     })),
-  //   resetTimer: () =>
-  //     set((state) => ({
-  //       timer: state.timer
-  //         ? {
-  //             ...state.timer,
-  //             timeLeft:
-  //               parseInt(state.timer.hours) * 3600 +
-  //               parseInt(state.timer.minutes) * 60 +
-  //               parseInt(state.timer.seconds),
-  //             isRunning: false,
-  //           }
-  //         : null,
-  //     })),
-  //   deleteTimer: () => set({ timer: null }),
 }));
 
 // TODO: version précédente
