@@ -3,7 +3,6 @@ import useTimePickerNavigation from "../hooks/useTimePickerNavigation";
 import { TimeDirection } from "../types/types";
 import NumericInput from "./NumericInput";
 import TimerButtons from "./TimerButtons";
-import TimerContainer from "./TimerContainer";
 
 const TimePicker = () => {
   const { hoursRef, minutesRef, secondsRef, handleNavigate } =
@@ -43,7 +42,6 @@ const TimePicker = () => {
         />
       </div>
       <TimerButtons />
-      <TimerContainer />
     </div>
   );
 };

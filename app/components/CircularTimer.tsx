@@ -1,13 +1,18 @@
 import { memo, useCallback, useEffect, useRef, useState } from "react";
-import { useTimeStore } from "../store/timeStore";
+import { Timer, useTimeStore } from "../store/timeStore";
 
 interface CircularTimerProps {
+  id: string;
   size?: number;
+  timers: Timer[];
 }
 
-const CircularTimer = ({ size = 200 }: CircularTimerProps) => {
-  const { timer, startTimer, stopTimer, deleteTimer, createTimer } =
+const CircularTimer = ({ id, size = 200 }: CircularTimerProps) => {
+  const { startTimer, stopTimer, deleteTimer, tick, createTimer } =
     useTimeStore();
+
+  const timer = useTimeStore((state) => state.timers.find((t) => t.id === id));
+
   const [timeLeft, setTimeLeft] = useState<number>(0);
   const [initialTime, setInitialTime] = useState<number>(0);
   const initializedRef = useRef(false);
@@ -23,52 +28,68 @@ const CircularTimer = ({ size = 200 }: CircularTimerProps) => {
     }
   }, [timer]);
 
-  const handleCreateTimer = useCallback(() => {
-    createTimer();
-  }, [createTimer]);
+  const handleCreateTimer = useCallback(
+    (id: string) => {
+      createTimer(id);
+    },
+    [createTimer]
+  );
 
-  useEffect(() => {
-    let interval: NodeJS.Timeout | null = null;
-    console.log("Timer running state changed:", timer?.isRunning);
-    if (timer?.isRunning) {
-      interval = setInterval(() => {
-        setTimeLeft((prevTime) => {
-          const newTime = prevTime - 1;
-          console.log("Timer tick:", newTime);
-          if (newTime <= 0) {
-            if (interval) clearInterval(interval);
-            stopTimer();
-            console.log("Timer reached zero and stopped");
-            return 0;
-          }
-          return newTime;
-        });
-      }, 10);
-    }
-    return () => {
-      if (interval) clearInterval(interval);
-      console.log("Interval cleared");
-    };
-  }, [timer?.isRunning, stopTimer]);
+  useEffect(
+    (id: string) => {
+      let interval: NodeJS.Timeout | null = null;
+      console.log("Timer running state changed:", timer?.isRunning);
+      if (timer?.isRunning) {
+        interval = setInterval(() => {
+          setTimeLeft((prevTime) => {
+            const newTime = prevTime - 1;
+            console.log("Timer tick:", newTime);
+            if (newTime <= 0) {
+              if (interval) clearInterval(interval);
+              stopTimer(id);
+              console.log("Timer reached zero and stopped");
+              return 0;
+            }
+            return newTime;
+          });
+        }, 10);
+      }
+      return () => {
+        if (interval) clearInterval(interval);
+        console.log("Interval cleared");
+      };
+    },
+    [timer?.isRunning, stopTimer]
+  );
 
   const handleStartPause = useCallback(() => {
-    console.log(
-      "Start/Pause button clicked, current running state:",
-      timer?.isRunning
-    );
     if (timer?.isRunning) {
-      stopTimer();
-      console.log("Timer paused at:", timeLeft);
+      stopTimer(id);
     } else {
-      startTimer();
-      console.log("Timer resumed with initial time:", initialTime);
+      startTimer(id);
     }
-  }, [timer?.isRunning, stopTimer, startTimer, timeLeft, initialTime]);
+  }, [timer?.isRunning, id, startTimer, stopTimer]);
+
+  // const handleStartPause = useCallback(
+  //   (id: string) => {
+  //     console.log(
+  //       "Start/Pause button clicked, current running state:",
+  //       timer?.isRunning
+  //     );
+  //     if (timer?.isRunning) {
+  //       stopTimer(id);
+  //       console.log("Timer paused at:", timeLeft);
+  //     } else {
+  //       startTimer(id);
+  //       console.log("Timer resumed with initial time:", initialTime);
+  //     }
+  //   },
+  //   [timer?.isRunning, stopTimer, startTimer, timeLeft, initialTime]
+  // );
 
   const handleDelete = useCallback(() => {
-    deleteTimer();
-    console.log("Timer deleted");
-  }, [deleteTimer]);
+    deleteTimer(id);
+  }, [id, deleteTimer]);
 
   const radius = size / 2;
   const circumference = 2 * Math.PI * (radius - 10);
