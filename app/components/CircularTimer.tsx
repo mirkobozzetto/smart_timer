@@ -1,3 +1,4 @@
+// TODO: version qui ne pause pas et ne reprend pas
 import { useEffect, useState } from "react";
 import { useTimeStore } from "../store/timeStore";
 
@@ -6,46 +7,42 @@ interface CircularTimerProps {
 }
 
 const CircularTimer = ({ size = 200 }: CircularTimerProps) => {
-  const {
-    // hours,
-    // minutes,
-    // seconds,
-    isRunning,
-    startTimer,
-    stopTimer,
-    // resetTimer,
-    resetAll,
-    timeLeft,
-    setTimeLeft,
-  } = useTimeStore();
-  const [localTimeLeft, setLocalTimeLeft] = useState(timeLeft * 100);
+  const { timer, startTimer, stopTimer, deleteTimer } = useTimeStore();
+  const [timeLeft, setTimeLeft] = useState<number>(0);
   const [isVisible, setIsVisible] = useState(true);
 
   useEffect(() => {
-    setLocalTimeLeft(timeLeft * 100);
-  }, [timeLeft]);
+    if (timer) {
+      setTimeLeft(timer.timeLeft * 100);
+    }
+  }, [timer]);
 
   useEffect(() => {
     let interval: NodeJS.Timeout;
-    if (isRunning && localTimeLeft > 0) {
+    if (timer?.isRunning && timeLeft > 0) {
       interval = setInterval(() => {
-        setLocalTimeLeft((prevTime) => {
+        setTimeLeft((prevTime) => {
           if (prevTime <= 1) {
             stopTimer();
-            setIsVisible(false);
             return 0;
           }
           return prevTime - 1;
         });
-      }, 10);
+      }, 10); // Update every 10ms for smooth animation
     }
     return () => clearInterval(interval);
-  }, [isRunning, localTimeLeft, stopTimer]);
+  }, [timer?.isRunning, timeLeft, stopTimer]);
+
+  if (!timer || !isVisible) return null;
 
   const radius = size / 2;
   const circumference = 2 * Math.PI * (radius - 10);
-  const strokeDashoffset =
-    circumference * (1 - localTimeLeft / (timeLeft * 100));
+  const initialTotalTime =
+    (parseInt(timer.hours) * 3600 +
+      parseInt(timer.minutes) * 60 +
+      parseInt(timer.seconds)) *
+    100;
+  const strokeDashoffset = circumference * (1 - timeLeft / initialTotalTime);
 
   const formatTime = (time: number): string => {
     const hours = Math.floor(time / 360000);
@@ -57,7 +54,7 @@ const CircularTimer = ({ size = 200 }: CircularTimerProps) => {
   };
 
   const handleStartPause = () => {
-    if (isRunning) {
+    if (timer.isRunning) {
       stopTimer();
     } else {
       startTimer();
@@ -65,13 +62,11 @@ const CircularTimer = ({ size = 200 }: CircularTimerProps) => {
   };
 
   const handleDelete = () => {
-    stopTimer();
-    resetAll();
-    setLocalTimeLeft(0);
+    deleteTimer();
     setIsVisible(false);
   };
 
-  return isVisible ? (
+  return (
     <div className="flex flex-col items-center border-2 border-white/20 p-5 rounded-lg">
       <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`}>
         <circle
@@ -80,14 +75,14 @@ const CircularTimer = ({ size = 200 }: CircularTimerProps) => {
           r={radius - 10}
           fill="none"
           stroke="#4B4B4B"
-          strokeWidth="2"
+          strokeWidth="2.5"
         />
         <circle
           cx={radius}
           cy={radius}
           r={radius - 10}
           fill="none"
-          stroke="#894889"
+          stroke="#C084FC"
           strokeWidth="2"
           strokeDasharray={circumference}
           strokeDashoffset={strokeDashoffset}
@@ -96,7 +91,7 @@ const CircularTimer = ({ size = 200 }: CircularTimerProps) => {
         />
       </svg>
       <div className="mt-4 font-thin text-2xl text-white">
-        {formatTime(localTimeLeft)}
+        {formatTime(timeLeft)}
       </div>
       <div className="flex space-x-4 mt-4">
         <button
@@ -104,16 +99,17 @@ const CircularTimer = ({ size = 200 }: CircularTimerProps) => {
           onClick={handleStartPause}
           disabled={timeLeft === 0}
         >
-          {isRunning ? "Pause" : "Démarrer"}
+          {timer.isRunning ? "Pause" : "Démarrer"}
         </button>
         <button className="px-4 py-2 rounded text-white" onClick={handleDelete}>
           Supprimer
         </button>
       </div>
     </div>
-  ) : null;
+  );
 };
 
+// TODO: version qui pause et reprend
 export default CircularTimer;
 
 // import { useEffect, useState } from "react";
@@ -204,7 +200,7 @@ export default CircularTimer;
 //               r={radius - 10}
 //               fill="none"
 //               stroke="#e6e6e6"
-//               strokeWidth="20"
+//               strokeWidth="10"
 //             />
 //             <circle
 //               cx={radius}
@@ -212,7 +208,7 @@ export default CircularTimer;
 //               r={radius - 10}
 //               fill="none"
 //               stroke="#894889"
-//               strokeWidth="20"
+//               strokeWidth="10"
 //               strokeDasharray={circumference}
 //               strokeDashoffset={strokeDashoffset}
 //               transform={`rotate(-90 ${radius} ${radius})`}

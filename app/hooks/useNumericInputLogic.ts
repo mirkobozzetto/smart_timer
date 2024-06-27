@@ -18,7 +18,7 @@ interface UseNumericInputLogicProps {
  * - value: The current value of the input field.
  * - handleKeyDown: A function that handles the keydown event of the input field.
  * - handleChange: A function that handles the change event of the input field.
- * It also updates the value state and calls the setTime function with the new value.
+ * It also updates the value state and calls the setInputTime function with the new value.
  */
 const useNumericInputLogic = ({
   min,
@@ -26,7 +26,10 @@ const useNumericInputLogic = ({
   label,
   onNavigate,
 }: UseNumericInputLogicProps) => {
-  const { [label]: storeValue, setTime } = useTimeStore();
+  const {
+    [`input${label.charAt(0).toUpperCase() + label.slice(1)}`]: storeValue,
+    setInputTime,
+  } = useTimeStore();
   const [value, setValue] = useState(storeValue || "00");
 
   useEffect(() => {
@@ -39,9 +42,6 @@ const useNumericInputLogic = ({
         e.preventDefault();
         let newValue: string;
 
-        /**
-         * If the field is empty, start a new input
-         */
         if (value === "00") {
           newValue = e.key;
         } else if (value.length === 2 && value !== "00") {
@@ -57,14 +57,14 @@ const useNumericInputLogic = ({
         if (numericValue >= min && numericValue <= max) {
           newValue = newValue.padStart(2, "0");
           setValue(newValue);
-          setTime(label, newValue);
+          setInputTime(label, newValue);
         } else {
           /**
            * If the value is out of range, keep only the last digit input
            */
           newValue = e.key.padStart(2, "0");
           setValue(newValue);
-          setTime(label, newValue);
+          setInputTime(label, newValue);
         }
       } else {
         switch (e.key) {
@@ -86,7 +86,7 @@ const useNumericInputLogic = ({
               .toString()
               .padStart(2, "0");
             setValue(incrementedValue);
-            setTime(label, incrementedValue);
+            setInputTime(label, incrementedValue);
             break;
           case "ArrowDown":
             e.preventDefault();
@@ -94,12 +94,12 @@ const useNumericInputLogic = ({
               .toString()
               .padStart(2, "0");
             setValue(decrementedValue);
-            setTime(label, decrementedValue);
+            setInputTime(label, decrementedValue);
             break;
         }
       }
     },
-    [min, max, value, onNavigate, label, setTime]
+    [min, max, value, onNavigate, label, setInputTime]
   );
 
   /**
@@ -108,7 +108,7 @@ const useNumericInputLogic = ({
    * @returns void
    * @description
    * This function is called when the input field value changes.
-   * It updates the value state and calls the setTime function with the new value.
+   * It updates the value state and calls the setInputTime function with the new value.
    */
   const handleChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -119,10 +119,10 @@ const useNumericInputLogic = ({
       ) {
         const paddedValue = newValue.padStart(2, "0");
         setValue(paddedValue);
-        setTime(label, paddedValue);
+        setInputTime(label, paddedValue);
       }
     },
-    [min, max, label, setTime]
+    [min, max, label, setInputTime]
   );
 
   return { value, handleKeyDown, handleChange };
