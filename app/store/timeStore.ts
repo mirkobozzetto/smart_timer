@@ -31,6 +31,7 @@ export const useTimeStore = create<TimeState>((set) => ({
   timer: null,
   setInputTime: (unit, value) =>
     set({ [`input${unit.charAt(0).toUpperCase() + unit.slice(1)}`]: value }),
+
   createTimer: () =>
     set((state) => ({
       timer: {
@@ -47,6 +48,7 @@ export const useTimeStore = create<TimeState>((set) => ({
       inputMinutes: "00",
       inputSeconds: "00",
     })),
+
   startTimer: () =>
     set((state) => ({
       timer: state.timer ? { ...state.timer, isRunning: true } : null,
@@ -55,6 +57,7 @@ export const useTimeStore = create<TimeState>((set) => ({
     set((state) => ({
       timer: state.timer ? { ...state.timer, isRunning: false } : null,
     })),
+
   tick: () =>
     set((state) => {
       if (state.timer && state.timer.isRunning && state.timer.timeLeft > 0) {
@@ -75,6 +78,12 @@ export const useTimeStore = create<TimeState>((set) => ({
       }
       return state;
     }),
+
+  setTimeLeft: (value: number) =>
+    set((state) => ({
+      timer: state.timer ? { ...state.timer, timeLeft: value } : null,
+    })),
+
   resetTimer: () =>
     set((state) => ({
       timer: state.timer
