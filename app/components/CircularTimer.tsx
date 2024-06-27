@@ -35,32 +35,29 @@ const CircularTimer = ({ id, size = 200 }: CircularTimerProps) => {
     [createTimer]
   );
 
-  useEffect(
-    (id: string) => {
-      let interval: NodeJS.Timeout | null = null;
-      console.log("Timer running state changed:", timer?.isRunning);
-      if (timer?.isRunning) {
-        interval = setInterval(() => {
-          setTimeLeft((prevTime) => {
-            const newTime = prevTime - 1;
-            console.log("Timer tick:", newTime);
-            if (newTime <= 0) {
-              if (interval) clearInterval(interval);
-              stopTimer(id);
-              console.log("Timer reached zero and stopped");
-              return 0;
-            }
-            return newTime;
-          });
-        }, 10);
-      }
-      return () => {
-        if (interval) clearInterval(interval);
-        console.log("Interval cleared");
-      };
-    },
-    [timer?.isRunning, stopTimer]
-  );
+  useEffect(() => {
+    let interval: NodeJS.Timeout | null = null;
+    // console.log("Timer running state changed:", timer?.isRunning);
+    if (timer?.isRunning) {
+      interval = setInterval(() => {
+        setTimeLeft((prevTime) => {
+          const newTime = prevTime - 1;
+          console.log("Timer tick:", newTime);
+          if (newTime <= 0) {
+            if (interval) clearInterval(interval);
+            stopTimer(timer.id);
+            // console.log("Timer reached zero and stopped");
+            return 0;
+          }
+          return newTime;
+        });
+      }, 10);
+    }
+    return () => {
+      if (interval) clearInterval(interval);
+      // console.log("Interval cleared");
+    };
+  }, [timer?.isRunning, stopTimer, timer?.id]);
 
   const handleStartPause = useCallback(() => {
     if (timer?.isRunning) {
@@ -106,7 +103,7 @@ const CircularTimer = ({ id, size = 200 }: CircularTimerProps) => {
 
   return (
     <div className="flex flex-col items-center border-2 border-white/20 my-5 p-10 rounded-lg min-w-56">
-      <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`}>
+      {/* <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`}>
         <circle
           cx={radius}
           cy={radius}
@@ -127,7 +124,59 @@ const CircularTimer = ({ id, size = 200 }: CircularTimerProps) => {
           transform={`rotate(-90 ${radius} ${radius})`}
           strokeLinecap="round"
         />
+      </svg> */}
+
+      <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`}>
+        <defs>
+          <linearGradient id="gradientColors" x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%" stopColor="#fb23a18e">
+              <animate
+                attributeName="offset"
+                values="0;1;0"
+                dur="10s"
+                repeatCount="indefinite"
+              />
+            </stop>
+            <stop offset="33%" stopColor="#db45e9ae">
+              <animate
+                attributeName="offset"
+                values="0.33;1.33;0.33"
+                dur="10s"
+                repeatCount="indefinite"
+              />
+            </stop>
+            <stop offset="100%" stopColor="#e945bdae">
+              <animate
+                attributeName="offset"
+                values="0.66;1.66;0.66"
+                dur="10s"
+                repeatCount="indefinite"
+              />
+            </stop>
+          </linearGradient>
+        </defs>
+        <circle
+          cx={radius}
+          cy={radius}
+          r={radius - 10}
+          fill="none"
+          stroke="#4B4B4B"
+          strokeWidth="2.5"
+        />
+        <circle
+          cx={radius}
+          cy={radius}
+          r={radius - 10}
+          fill="none"
+          className="stroke-gradient"
+          strokeWidth="2"
+          strokeDasharray={circumference}
+          strokeDashoffset={strokeDashoffset}
+          transform={`rotate(-90 ${radius} ${radius})`}
+          strokeLinecap="round"
+        />
       </svg>
+
       <div className="mt-4 font-thin text-2xl text-white">
         {formatTime(timeLeft)}
       </div>

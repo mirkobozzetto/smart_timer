@@ -27,6 +27,7 @@ const useNumericInputLogic = ({
   onNavigate,
 }: UseNumericInputLogicProps) => {
   const {
+    // @ts-ignore
     [`input${label.charAt(0).toUpperCase() + label.slice(1)}`]: storeValue,
     setInputTime,
   } = useTimeStore();

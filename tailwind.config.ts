@@ -11,8 +11,30 @@ const config: Config = {
       colors: {
         dark: "#1E1E1E",
       },
+      animation: {
+        "gradient-spin": "gradientSpin 8s linear infinite",
+      },
+      keyframes: {
+        gradientFlow: {
+          "0%": { strokeDashoffset: "0%" },
+          "100%": { strokeDashoffset: "100%" },
+        },
+      },
     },
   },
-  plugins: [],
+  plugins: [
+    ({
+      addUtilities,
+    }: {
+      addUtilities: (utilities: Record<string, Record<string, string>>) => void;
+    }) => {
+      const newUtilities = {
+        ".stroke-gradient": {
+          stroke: "url(#gradientColors)",
+        },
+      };
+      addUtilities(newUtilities);
+    },
+  ],
 };
 export default config;
