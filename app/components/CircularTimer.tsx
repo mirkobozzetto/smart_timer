@@ -115,28 +115,12 @@ const CircularTimer = ({ id, size = 200 }: CircularTimerProps) => {
 
   return (
     <div className="flex flex-col items-center border-2 border-white/20 my-5 p-10 rounded-lg min-w-56">
-      {/* <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`}>
-        <circle
-          cx={radius}
-          cy={radius}
-          r={radius - 10}
-          fill="none"
-          stroke="#4B4B4B"
-          strokeWidth="2.5"
-        />
-        <circle
-          cx={radius}
-          cy={radius}
-          r={radius - 10}
-          fill="none"
-          stroke="#C084FC"
-          strokeWidth="2"
-          strokeDasharray={circumference}
-          strokeDashoffset={strokeDashoffset}
-          transform={`rotate(-90 ${radius} ${radius})`}
-          strokeLinecap="round"
-        />
-      </svg> */}
+      <div className="mb-2 text-gray-400 text-sm">
+        {timer?.createdAt.toLocaleTimeString([], {
+          hour: "2-digit",
+          minute: "2-digit",
+        })}
+      </div>
 
       <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`}>
         <defs>
@@ -209,6 +193,7 @@ const CircularTimer = ({ id, size = 200 }: CircularTimerProps) => {
       <div className="mt-4 font-thin text-2xl text-white">
         {formatTime(timeLeft)}
       </div>
+
       <div className="flex justify-between mt-4 w-full">
         <button
           className="py-2 rounded text-white"

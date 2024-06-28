@@ -8,6 +8,7 @@ export type Timer = {
   timeLeft: number;
   isRunning: boolean;
   id: string;
+  createdAt: Date;
 };
 
 export type TimeState = {
@@ -47,6 +48,7 @@ export const useTimeStore = create<TimeState>((set) => ({
             parseInt(state.inputMinutes) * 60 +
             parseInt(state.inputSeconds),
           isRunning: false,
+          createdAt: new Date(),
         },
       ],
       inputHours: "00",
