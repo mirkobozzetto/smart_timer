@@ -9,7 +9,7 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        dark: "#1E1E1E",
+        dark: "#181827",
       },
       animation: {
         "gradient-spin": "gradientSpin 8s linear infinite",

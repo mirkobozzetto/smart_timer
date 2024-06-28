@@ -1,5 +1,7 @@
 import { memo, useCallback, useEffect, useRef, useState } from "react";
+import { gifKeywords } from "../keywords";
 import { Timer, useTimeStore } from "../store/timeStore";
+import RandomGiphyImage from "./RandomGiphyImage";
 
 interface CircularTimerProps {
   id: string;
@@ -7,7 +9,7 @@ interface CircularTimerProps {
   timers: Timer[];
 }
 
-const CircularTimer = ({ id, size = 200 }: CircularTimerProps) => {
+const CircularTimer = ({ id, size = 250 }: CircularTimerProps) => {
   const { startTimer, stopTimer, deleteTimer, tick, createTimer } =
     useTimeStore();
 
@@ -150,6 +152,9 @@ const CircularTimer = ({ id, size = 200 }: CircularTimerProps) => {
               />
             </stop>
           </linearGradient>
+          <clipPath id="gifClip">
+            <circle cx={radius} cy={radius} r={radius - 12} />
+          </clipPath>
         </defs>
         <circle
           cx={radius}
@@ -157,7 +162,6 @@ const CircularTimer = ({ id, size = 200 }: CircularTimerProps) => {
           r={radius - 10}
           fill="none"
           stroke="#4B4B4B"
-          strokeWidth="2.5"
         />
         <circle
           cx={radius}
@@ -171,7 +175,8 @@ const CircularTimer = ({ id, size = 200 }: CircularTimerProps) => {
           transform={`rotate(-90 ${radius} ${radius})`}
           strokeLinecap="round"
         />
-        <text
+        <RandomGiphyImage size={size} gifKeywords={gifKeywords} />
+        {/* <text
           x={radius}
           y={radius}
           textAnchor="middle"
@@ -180,14 +185,7 @@ const CircularTimer = ({ id, size = 200 }: CircularTimerProps) => {
           fill="white"
         >
           hello
-        </text>
-        {/* <image
-          href="/lottieanim.gif"
-          width={size}
-          height={size}
-          opacity={0.4}
-          preserveAspectRatio="xMidYMid meet"
-        /> */}
+        </text> */}
       </svg>
 
       <div className="mt-4 font-thin text-2xl text-white">

@@ -34,6 +34,7 @@ const NumericInput = forwardRef<HTMLInputElement, NumericInputProps>(
      * This function converts the label to the corresponding time unit.
      */
     const timeUnit = shortLabelToTimeUnit[label as ShortLabel];
+
     const { value, handleKeyDown, handleChange } = useNumericInputLogic({
       min,
       max,
@@ -51,7 +52,7 @@ const NumericInput = forwardRef<HTMLInputElement, NumericInputProps>(
      */
     const { handleFocus, handleBlur, isFocused } = useFocusClass(
       ref as React.RefObject<HTMLInputElement>,
-      "bg-[#894889] text-white"
+      "bg-[#894889]/70 text-white"
     );
 
     return (
@@ -66,8 +67,8 @@ const NumericInput = forwardRef<HTMLInputElement, NumericInputProps>(
             inputMode="numeric"
             pattern="[0-9]*"
             className={clsx(
-              "w-20 font-bold text-center text-6xl cursor-default caret-transparent outline-none rounded text-gray-100 bg-[#1E1E1E]",
-              "selection:bg-transparent  focus:bg-[#894889] focus:text-white hover:bg-[#894889]/50 hover:text-white",
+              "w-20 font-bold text-center text-6xl cursor-default caret-transparent outline-none rounded text-gray-100 bg-white/5",
+              "selection:bg-transparent  focus:bg-[#894889]/70 focus:text-white hover:bg-[#894889]/30 hover:text-white",
               {
                 "bg-[#894889] text-white": isFocused,
               }
