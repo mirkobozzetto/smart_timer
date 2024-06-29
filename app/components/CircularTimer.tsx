@@ -9,7 +9,7 @@ interface CircularTimerProps {
   timers: Timer[];
 }
 
-const CircularTimer = ({ id, size = 250 }: CircularTimerProps) => {
+const CircularTimer = ({ id, size = 200 }: CircularTimerProps) => {
   const { startTimer, stopTimer, deleteTimer, tick, createTimer } =
     useTimeStore();
 
@@ -17,7 +17,7 @@ const CircularTimer = ({ id, size = 250 }: CircularTimerProps) => {
 
   const [timeLeft, setTimeLeft] = useState<number>(0);
   const [initialTime, setInitialTime] = useState<number>(0);
-  // const initializedRef = useRef(false);
+  const initializedRef = useRef(false);
 
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
@@ -41,24 +41,24 @@ const CircularTimer = ({ id, size = 250 }: CircularTimerProps) => {
     }
   };
 
-  // useEffect(() => {
-  //   if (timer && !initializedRef.current) {
-  //     const totalTime = timer.timeLeft * 100;
-  //     setTimeLeft(totalTime);
-  //     setInitialTime(totalTime);
-
-  //     initializedRef.current = true;
-  //   }
-  // }, [timer]);
-
   useEffect(() => {
-    if (timer) {
-      setTimeout(() => {
-        setTimeLeft(timer.timeLeft * 100);
-        setInitialTime(timer.timeLeft * 100);
-      }, 0);
+    if (timer && !initializedRef.current) {
+      const totalTime = timer.timeLeft * 100;
+      setTimeLeft(totalTime);
+      setInitialTime(totalTime);
+
+      initializedRef.current = true;
     }
   }, [timer]);
+
+  // useEffect(() => {
+  //   if (timer) {
+  //     setTimeout(() => {
+  //       setTimeLeft(timer.timeLeft * 100);
+  //       setInitialTime(timer.timeLeft * 100);
+  //     }, 0);
+  //   }
+  // }, [timer]);
 
   const handleCreateTimer = useCallback(
     (id: string) => {
@@ -117,13 +117,6 @@ const CircularTimer = ({ id, size = 250 }: CircularTimerProps) => {
 
   return (
     <div className="flex flex-col items-center border-2 border-white/20 my-5 p-10 rounded-lg min-w-56">
-      <div className="mb-2 text-gray-400 text-sm">
-        {timer?.createdAt.toLocaleTimeString([], {
-          hour: "2-digit",
-          minute: "2-digit",
-        })}
-      </div>
-
       <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`}>
         <defs>
           <linearGradient id="gradientColors" x1="0%" y1="0%" x2="100%" y2="0%">
@@ -191,7 +184,6 @@ const CircularTimer = ({ id, size = 250 }: CircularTimerProps) => {
       <div className="mt-4 font-thin text-2xl text-white">
         {formatTime(timeLeft)}
       </div>
-
       <div className="flex justify-between mt-4 w-full">
         <button
           className="py-2 rounded text-white"
