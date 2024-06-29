@@ -146,7 +146,7 @@ const CircularTimer = ({ id, size = 200 }: CircularTimerProps) => {
             </stop>
           </linearGradient>
           <clipPath id="gifClip">
-            <circle cx={radius} cy={radius} r={radius - 12} />
+            <circle cx={radius} cy={radius} r={radius - 16} />
           </clipPath>
         </defs>
         <circle
@@ -162,7 +162,7 @@ const CircularTimer = ({ id, size = 200 }: CircularTimerProps) => {
           r={radius - 10}
           fill="none"
           className="stroke-gradient"
-          strokeWidth="2"
+          strokeWidth="3"
           strokeDasharray={circumference}
           strokeDashoffset={strokeDashoffset}
           transform={`rotate(-90 ${radius} ${radius})`}
