@@ -15,6 +15,7 @@ interface NumericInputProps {
   label: ShortLabel;
   suffix?: string;
   onNavigate: (direction: TimeDirection) => void;
+  onEnterPress?: () => void;
 }
 
 /**
@@ -25,7 +26,7 @@ interface NumericInputProps {
  * NumericInput component
  */
 const NumericInput = forwardRef<HTMLInputElement, NumericInputProps>(
-  ({ min, max, label, suffix = "", onNavigate }, ref) => {
+  ({ min, max, label, suffix = "", onNavigate, onEnterPress }, ref) => {
     /**
      * Convert the label to the corresponding time unit
      * @param label The label of the input field
@@ -40,6 +41,7 @@ const NumericInput = forwardRef<HTMLInputElement, NumericInputProps>(
       max,
       label: timeUnit,
       onNavigate,
+      onEnterPress,
     });
 
     /**
@@ -75,7 +77,13 @@ const NumericInput = forwardRef<HTMLInputElement, NumericInputProps>(
             )}
             value={value}
             onChange={handleChange}
-            onKeyDown={handleKeyDown}
+            // onKeyDown={handleKeyDown}
+            onKeyDown={(e) => {
+              handleKeyDown(e);
+              if (e.key === "Enter" && onEnterPress) {
+                onEnterPress();
+              }
+            }}
             maxLength={2}
             onFocus={(e) => {
               handleFocus();

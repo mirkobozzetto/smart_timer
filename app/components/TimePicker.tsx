@@ -1,5 +1,7 @@
 "use client";
+import { useCallback, useRef } from "react";
 import useTimePickerNavigation from "../hooks/useTimePickerNavigation";
+import { useTimeStore } from "../store/timeStore";
 import { TimeDirection } from "../types/types";
 import NumericInput from "./NumericInput";
 import TimerButtons from "./TimerButtons";
@@ -7,6 +9,32 @@ import TimerButtons from "./TimerButtons";
 const TimePicker = () => {
   const { hoursRef, minutesRef, secondsRef, handleNavigate } =
     useTimePickerNavigation();
+  const { createTimer, inputHours, inputMinutes, inputSeconds } =
+    useTimeStore();
+
+  // Utiliser useRef pour stocker le timeout
+  const timerRef = useRef<NodeJS.Timeout | null>(null);
+
+  const handleEnterPress = useCallback(() => {
+    // Annuler le timeout précédent s'il existe
+    if (timerRef.current) {
+      clearTimeout(timerRef.current);
+    }
+
+    // Définir un nouveau timeout
+    timerRef.current = setTimeout(() => {
+      const totalSeconds =
+        parseInt(inputHours) * 3600 +
+        parseInt(inputMinutes) * 60 +
+        parseInt(inputSeconds);
+
+      if (totalSeconds > 0) {
+        createTimer();
+      } else {
+        console.log("Timer value must be greater than 0");
+      }
+    }, 300); // 300ms de délai
+  }, [inputHours, inputMinutes, inputSeconds, createTimer]);
 
   return (
     <div className="flex flex-col">
@@ -20,6 +48,7 @@ const TimePicker = () => {
           }
           ref={hoursRef}
           suffix=":"
+          onEnterPress={handleEnterPress}
         />
         <NumericInput
           min={0}
@@ -30,6 +59,7 @@ const TimePicker = () => {
           }
           ref={minutesRef}
           suffix=":"
+          onEnterPress={handleEnterPress}
         />
         <NumericInput
           min={0}
@@ -39,6 +69,7 @@ const TimePicker = () => {
             handleNavigate("seconds", direction)
           }
           ref={secondsRef}
+          onEnterPress={handleEnterPress}
         />
       </div>
       <TimerButtons />

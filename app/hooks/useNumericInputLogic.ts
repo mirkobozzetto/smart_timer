@@ -7,6 +7,7 @@ interface UseNumericInputLogicProps {
   max: number;
   label: TimeUnit;
   onNavigate: (direction: TimeDirection) => void;
+  onEnterPress?: () => void;
 }
 
 /**
@@ -25,6 +26,7 @@ const useNumericInputLogic = ({
   max,
   label,
   onNavigate,
+  onEnterPress,
 }: UseNumericInputLogicProps) => {
   const {
     // @ts-ignore
@@ -97,10 +99,16 @@ const useNumericInputLogic = ({
             setValue(decrementedValue);
             setInputTime(label, decrementedValue);
             break;
+          case "Enter":
+            e.preventDefault();
+            if (onEnterPress) {
+              onEnterPress();
+            }
+            break;
         }
       }
     },
-    [min, max, value, onNavigate, label, setInputTime]
+    [min, max, value, onNavigate, label, setInputTime, onEnterPress]
   );
 
   /**
