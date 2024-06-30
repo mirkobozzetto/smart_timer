@@ -88,10 +88,9 @@ export const useTimeStore = create(
         set((state) => ({
           timers: state.timers.map((timer) => {
             if (timer.id === id && timer.isRunning && timer.timeLeft > 0) {
-              const newTimeLeft = timer.timeLeft - 1;
               return {
                 ...timer,
-                timeLeft: newTimeLeft,
+                timeLeft: timer.timeLeft - 1,
               };
             }
             return timer;

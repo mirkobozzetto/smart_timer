@@ -1,6 +1,6 @@
 import { memo, useCallback, useEffect, useRef, useState } from "react";
 import { gifKeywords } from "../keywords";
-import { Timer, TimeState, useTimeStore } from "../store/timeStore";
+import { Timer, useTimeStore } from "../store/timeStore";
 import RandomGiphyImage from "./RandomGiphyImage";
 
 interface CircularTimerProps {
@@ -65,16 +65,14 @@ const CircularTimer = ({ id, size = 200 }: CircularTimerProps) => {
   // }, [timer]);
 
   useEffect(() => {
-    if (timer && !initializedRef.current) {
+    if (timer) {
+      const initialTimeInSeconds =
+        parseInt(timer.hours) * 3600 +
+        parseInt(timer.minutes) * 60 +
+        parseInt(timer.seconds);
       setTimeLeft(timer.timeLeft * 100);
-      setInitialTime(
-        (parseInt(timer.hours) * 3600 +
-          parseInt(timer.minutes) * 60 +
-          parseInt(timer.seconds)) *
-          100
-      );
+      setInitialTime(initialTimeInSeconds * 100);
       setTimerName(timer.name || "");
-      initializedRef.current = true;
     }
   }, [timer]);
 
@@ -86,33 +84,53 @@ const CircularTimer = ({ id, size = 200 }: CircularTimerProps) => {
   );
 
   useEffect(() => {
-    let interval: NodeJS.Timeout | null = null;
+    let animationFrameId: number | null = null;
+    let lastUpdateTime: number | null = null;
 
-    if (timer?.isRunning) {
-      setTimeLeft(timer.timeLeft * 100);
-      interval = setInterval(() => {
+    const updateTimer = (currentTime: number) => {
+      if (!timer) return;
+
+      if (lastUpdateTime === null) {
+        lastUpdateTime = currentTime;
+      }
+
+      const deltaTime = currentTime - lastUpdateTime;
+
+      if (deltaTime >= 10) {
+        // Mise à jour toutes les 10ms
         setTimeLeft((prevTime) => {
-          const newTime = prevTime - 1;
-          if (newTime <= 0) {
-            if (interval) clearInterval(interval);
+          const newTime = Math.max(prevTime - 1, 0); // Décrémente de 1 (1/100 de seconde)
+          if (newTime === 0 && prevTime !== 0) {
             stopTimer(timer.id);
             playAlarm();
-            return 0;
+            return initialTime; // Réinitialise à la valeur initiale
           }
           return newTime;
         });
-      }, 10);
+        lastUpdateTime = currentTime;
+      }
+
+      if (timer.isRunning) {
+        animationFrameId = requestAnimationFrame(updateTimer);
+      }
+    };
+
+    if (timer?.isRunning) {
+      animationFrameId = requestAnimationFrame(updateTimer);
     }
 
     return () => {
-      if (interval) clearInterval(interval);
+      if (animationFrameId !== null) {
+        cancelAnimationFrame(animationFrameId);
+      }
     };
-  }, [timer?.isRunning, timer?.timeLeft, stopTimer, timer?.id, playAlarm]);
+  }, [timer, stopTimer, playAlarm, initialTime]);
 
   resetAndStartTimer: (id: string) =>
     // @ts-ignore
-    set((state: TimeState) => ({
-      timers: state.timers.map((timer: Timer) =>
+    set((state) => ({
+      // @ts-ignore
+      timers: state.timers.map((timer) =>
         timer.id === id
           ? {
               ...timer,
@@ -131,24 +149,15 @@ const CircularTimer = ({ id, size = 200 }: CircularTimerProps) => {
 
     if (timer.isRunning) {
       stopTimer(id);
-      // Sauvegardez le temps restant dans le store
-      updateTimer(id, { timeLeft: Math.floor(timeLeft / 100) });
+      updateTimer(id, { timeLeft: Math.ceil(timeLeft / 100) });
     } else {
       if (timeLeft === 0) {
         // Réinitialiser le timer à sa valeur initiale
-        const initialTimeInSeconds =
-          parseInt(timer.hours) * 3600 +
-          parseInt(timer.minutes) * 60 +
-          parseInt(timer.seconds);
-        setTimeLeft(initialTimeInSeconds * 100);
-        setInitialTime(initialTimeInSeconds * 100);
-        startTimer(id);
-      } else {
-        // Reprendre le timer là où il s'était arrêté
-        startTimer(id);
+        setTimeLeft(initialTime);
       }
+      startTimer(id);
     }
-  }, [timer, timeLeft, id, startTimer, stopTimer, updateTimer]);
+  }, [timer, timeLeft, id, startTimer, stopTimer, updateTimer, initialTime]);
 
   const radius = size / 2;
   const circumference = 2 * Math.PI * (radius - 10);
