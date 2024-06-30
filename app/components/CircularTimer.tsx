@@ -18,6 +18,7 @@ const CircularTimer = ({ id, size = 200 }: CircularTimerProps) => {
     createTimer,
     resetAndStartTimer,
     updateTimerName,
+    updateTimer,
   } = useTimeStore();
 
   const timer = useTimeStore((state) => state.timers.find((t) => t.id === id));
@@ -30,6 +31,10 @@ const CircularTimer = ({ id, size = 200 }: CircularTimerProps) => {
 
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
+  const handleDelete = useCallback(() => {
+    deleteTimer(id);
+  }, [id, deleteTimer]);
+
   const handleNameChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const newName = event.target.value.slice(0, 20);
     setTimerName(newName);
@@ -37,7 +42,7 @@ const CircularTimer = ({ id, size = 200 }: CircularTimerProps) => {
   };
 
   useEffect(() => {
-    audioRef.current = new Audio("/bell_ring.mp3");
+    audioRef.current = new Audio("/clockalarm.mp3");
   }, []);
 
   const playAlarm = useCallback(() => {
@@ -60,7 +65,7 @@ const CircularTimer = ({ id, size = 200 }: CircularTimerProps) => {
   // }, [timer]);
 
   useEffect(() => {
-    if (timer) {
+    if (timer && !initializedRef.current) {
       setTimeLeft(timer.timeLeft * 100);
       setInitialTime(
         (parseInt(timer.hours) * 3600 +
@@ -69,6 +74,7 @@ const CircularTimer = ({ id, size = 200 }: CircularTimerProps) => {
           100
       );
       setTimerName(timer.name || "");
+      initializedRef.current = true;
     }
   }, [timer]);
 
@@ -83,10 +89,10 @@ const CircularTimer = ({ id, size = 200 }: CircularTimerProps) => {
     let interval: NodeJS.Timeout | null = null;
 
     if (timer?.isRunning) {
+      setTimeLeft(timer.timeLeft * 100);
       interval = setInterval(() => {
         setTimeLeft((prevTime) => {
           const newTime = prevTime - 1;
-
           if (newTime <= 0) {
             if (interval) clearInterval(interval);
             stopTimer(timer.id);
@@ -97,10 +103,11 @@ const CircularTimer = ({ id, size = 200 }: CircularTimerProps) => {
         });
       }, 10);
     }
+
     return () => {
       if (interval) clearInterval(interval);
     };
-  }, [timer?.isRunning, stopTimer, timer?.id, playAlarm]);
+  }, [timer?.isRunning, timer?.timeLeft, stopTimer, timer?.id, playAlarm]);
 
   resetAndStartTimer: (id: string) =>
     // @ts-ignore
@@ -124,22 +131,24 @@ const CircularTimer = ({ id, size = 200 }: CircularTimerProps) => {
 
     if (timer.isRunning) {
       stopTimer(id);
+      // Sauvegardez le temps restant dans le store
+      updateTimer(id, { timeLeft: Math.floor(timeLeft / 100) });
     } else {
       if (timeLeft === 0) {
+        // Réinitialiser le timer à sa valeur initiale
         const initialTimeInSeconds =
           parseInt(timer.hours) * 3600 +
           parseInt(timer.minutes) * 60 +
           parseInt(timer.seconds);
         setTimeLeft(initialTimeInSeconds * 100);
         setInitialTime(initialTimeInSeconds * 100);
+        startTimer(id);
+      } else {
+        // Reprendre le timer là où il s'était arrêté
+        startTimer(id);
       }
-      startTimer(id);
     }
-  }, [timer, timeLeft, id, startTimer, stopTimer]);
-
-  const handleDelete = useCallback(() => {
-    deleteTimer(id);
-  }, [id, deleteTimer]);
+  }, [timer, timeLeft, id, startTimer, stopTimer, updateTimer]);
 
   const radius = size / 2;
   const circumference = 2 * Math.PI * (radius - 10);

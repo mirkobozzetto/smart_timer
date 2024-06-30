@@ -41,7 +41,7 @@ export const useTimeStore = create(
       timers: [],
       addTimer: (timer) =>
         set((state) => ({ timers: [...state.timers, timer] })),
-      updateTimer: (id, updates) =>
+      updateTimer: (id: string, updates: Partial<Timer>) =>
         set((state) => ({
           timers: state.timers.map((t) =>
             t.id === id ? { ...t, ...updates } : t
@@ -92,13 +92,6 @@ export const useTimeStore = create(
               return {
                 ...timer,
                 timeLeft: newTimeLeft,
-                hours: Math.floor(newTimeLeft / 3600)
-                  .toString()
-                  .padStart(2, "0"),
-                minutes: Math.floor((newTimeLeft % 3600) / 60)
-                  .toString()
-                  .padStart(2, "0"),
-                seconds: (newTimeLeft % 60).toString().padStart(2, "0"),
               };
             }
             return timer;
