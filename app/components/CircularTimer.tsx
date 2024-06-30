@@ -127,29 +127,29 @@ const CircularTimer = ({ id, size = 200 }: CircularTimerProps) => {
         return;
       }
 
-      if (timer?.isRunning && timeLeft > 0) {
-        animationFrameId = requestAnimationFrame(updateTimer);
-      }
-
       const deltaTime = currentTime - lastUpdateTime;
 
-      timeLeftRef.current = Math.max(timeLeftRef.current - deltaTime, 0);
-      setTimeLeft(timeLeftRef.current); // Ajoutez cette ligne pour mettre à jour l'état
-      if (timeLeftRef.current <= 0) {
-        stopTimer(timer.id);
-        playAlarm();
+      if (deltaTime >= 1000) {
+        timeLeftRef.current = Math.max(timeLeftRef.current - 1000, 0);
+        setTimeLeft(timeLeftRef.current);
+
+        if (timeLeftRef.current <= 0) {
+          stopTimer(timer.id);
+          playAlarm();
+        }
+
+        lastUpdateTime = currentTime;
       }
 
-      lastUpdateTime = currentTime;
       animationFrameId = requestAnimationFrame(updateTimer);
     };
 
+    animationFrameId = requestAnimationFrame(updateTimer);
+
     return () => {
-      if (animationFrameId !== null) {
-        cancelAnimationFrame(animationFrameId);
-      }
+      cancelAnimationFrame(animationFrameId);
     };
-  }, [timer, stopTimer, playAlarm, timeLeft]);
+  }, [timer, stopTimer, playAlarm]);
 
   // useEffect(() => {
   //   if (timer) {

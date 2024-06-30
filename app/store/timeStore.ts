@@ -56,7 +56,8 @@ export const useTimeStore = create(
           timers: [
             ...state.timers,
             {
-              id: Date.now().toString(),
+              // id: Date.now().toString(),
+              id: performance.now().toString(),
               hours: state.inputHours,
               minutes: state.inputMinutes,
               seconds: state.inputSeconds,
@@ -104,7 +105,7 @@ export const useTimeStore = create(
             if (timer.id === id && timer.isRunning && timer.timeLeft > 0) {
               return {
                 ...timer,
-                timeLeft: Math.max(timer.timeLeft - 16, 0), // Environ 60 FPS
+                timeLeft: Math.max(timer.timeLeft - 1000, 0),
               };
             }
             return timer;
@@ -204,9 +205,7 @@ export const useTimeStore = create(
 
 export const useTimerTick = () => {
   useEffect(() => {
-    let animationFrameId: number;
-
-    const updateTimers = () => {
+    const interval = setInterval(() => {
       const state = useTimeStore.getState();
       state.timers.forEach((timer) => {
         if (timer.isRunning) {
@@ -216,11 +215,8 @@ export const useTimerTick = () => {
           }
         }
       });
-      animationFrameId = requestAnimationFrame(updateTimers);
-    };
+    }, 1000);
 
-    animationFrameId = requestAnimationFrame(updateTimers);
-
-    return () => cancelAnimationFrame(animationFrameId);
+    return () => clearInterval(interval);
   }, []);
 };

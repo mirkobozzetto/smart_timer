@@ -45,7 +45,8 @@ const TimePicker = () => {
         parseInt(inputSeconds);
 
       if (totalSeconds > 0) {
-        createTimer(Date.now().toString()); // Ajout de l'argument ici
+        // createTimer(Date.now().toString());
+        createTimer(performance.now().toString());
       } else {
         console.log("Timer value must be greater than 0");
       }
