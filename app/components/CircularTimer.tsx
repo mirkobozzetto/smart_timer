@@ -23,11 +23,15 @@ const CircularTimer = ({ id, size = 200 }: CircularTimerProps) => {
 
   const [timeLeft, setTimeLeft] = useState<number>(0);
   const [initialTime, setInitialTime] = useState<number>(0);
-  // const [initialTimerValue, setInitialTimerValue] = useState<number>(0);
+  const [timerName, setTimerName] = useState<string>("");
 
   const initializedRef = useRef(false);
 
   const audioRef = useRef<HTMLAudioElement | null>(null);
+
+  const handleNameChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setTimerName(event.target.value.slice(0, 20));
+  };
 
   useEffect(() => {
     audioRef.current = new Audio("/bell_ring.mp3");
@@ -42,13 +46,6 @@ const CircularTimer = ({ id, size = 200 }: CircularTimerProps) => {
     }
   }, []);
 
-  // const stopAlarm = () => {
-  //   if (audioRef.current) {
-  //     audioRef.current.pause();
-  //     audioRef.current.currentTime = 0;
-  //   }
-  // };
-
   useEffect(() => {
     if (timer && !initializedRef.current) {
       const totalTime = timer.timeLeft * 100;
@@ -58,15 +55,6 @@ const CircularTimer = ({ id, size = 200 }: CircularTimerProps) => {
       initializedRef.current = true;
     }
   }, [timer]);
-
-  // useEffect(() => {
-  //   if (timer) {
-  //     setTimeout(() => {
-  //       setTimeLeft(timer.timeLeft * 100);
-  //       setInitialTime(timer.timeLeft * 100);
-  //     }, 0);
-  //   }
-  // }, [timer]);
 
   const handleCreateTimer = useCallback(
     (id: string) => {
@@ -152,6 +140,19 @@ const CircularTimer = ({ id, size = 200 }: CircularTimerProps) => {
 
   return (
     <div className="flex flex-col items-center border-2 border-white/20 my-5 p-10 rounded-lg min-w-56">
+      <div className="flex justify-center items-center border-white/20 mb-3 border-b-2 w-full h-full">
+        <input
+          type="text"
+          value={timerName}
+          onChange={handleNameChange}
+          placeholder="Let's Go Timer"
+          className="bg-transparent w-3/4 text-center text-gray-300 outline-none placeholder-gray-500"
+          style={{
+            fontSize: `${size / 8}px`,
+          }}
+        />
+      </div>
+
       <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`}>
         <defs>
           <linearGradient id="gradientColors" x1="0%" y1="0%" x2="100%" y2="0%">
@@ -204,16 +205,6 @@ const CircularTimer = ({ id, size = 200 }: CircularTimerProps) => {
           strokeLinecap="round"
         />
         <RandomGiphyImage size={size} gifKeywords={gifKeywords} />
-        {/* <text
-          x={radius}
-          y={radius}
-          textAnchor="middle"
-          dominantBaseline="central"
-          fontSize={size / 4}
-          fill="white"
-        >
-          hello
-        </text> */}
       </svg>
 
       <div className="mt-4 font-thin text-2xl text-white">
