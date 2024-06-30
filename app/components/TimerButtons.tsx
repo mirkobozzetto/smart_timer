@@ -16,7 +16,7 @@ const TimerButtons = () => {
     parseInt(inputSeconds) > 0;
 
   return (
-    <div className="text-center">
+    <div className="mb-1 text-center">
       <button
         onClick={handleCreateTimer}
         disabled={!isTimerSet}

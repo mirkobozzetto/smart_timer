@@ -12,16 +12,13 @@ const TimePicker = () => {
   const { createTimer, inputHours, inputMinutes, inputSeconds } =
     useTimeStore();
 
-  // Utiliser useRef pour stocker le timeout
   const timerRef = useRef<NodeJS.Timeout | null>(null);
 
   const handleEnterPress = useCallback(() => {
-    // Annuler le timeout précédent s'il existe
     if (timerRef.current) {
       clearTimeout(timerRef.current);
     }
 
-    // Définir un nouveau timeout
     timerRef.current = setTimeout(() => {
       const totalSeconds =
         parseInt(inputHours) * 3600 +
@@ -29,11 +26,11 @@ const TimePicker = () => {
         parseInt(inputSeconds);
 
       if (totalSeconds > 0) {
-        createTimer();
+        createTimer(Date.now().toString());
       } else {
         console.log("Timer value must be greater than 0");
       }
-    }, 300); // 300ms de délai
+    }, 300); // 300ms de délai pour que le timer soit créé et démarré
   }, [inputHours, inputMinutes, inputSeconds, createTimer]);
 
   return (

@@ -14,9 +14,10 @@ const CircularTimer = ({ id, size = 200 }: CircularTimerProps) => {
     startTimer,
     stopTimer,
     deleteTimer,
-    tick,
+    // tick,
     createTimer,
     resetAndStartTimer,
+    updateTimerName,
   } = useTimeStore();
 
   const timer = useTimeStore((state) => state.timers.find((t) => t.id === id));
@@ -30,7 +31,9 @@ const CircularTimer = ({ id, size = 200 }: CircularTimerProps) => {
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
   const handleNameChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setTimerName(event.target.value.slice(0, 20));
+    const newName = event.target.value.slice(0, 20);
+    setTimerName(newName);
+    updateTimerName(id, newName);
   };
 
   useEffect(() => {
@@ -46,13 +49,26 @@ const CircularTimer = ({ id, size = 200 }: CircularTimerProps) => {
     }
   }, []);
 
-  useEffect(() => {
-    if (timer && !initializedRef.current) {
-      const totalTime = timer.timeLeft * 100;
-      setTimeLeft(totalTime);
-      setInitialTime(totalTime);
+  // useEffect(() => {
+  //   if (timer && !initializedRef.current) {
+  //     const totalTime = timer.timeLeft * 100;
+  //     setTimeLeft(totalTime);
+  //     setInitialTime(totalTime);
+  //     setTimerName(timer.name || "");
+  //     initializedRef.current = true;
+  //   }
+  // }, [timer]);
 
-      initializedRef.current = true;
+  useEffect(() => {
+    if (timer) {
+      setTimeLeft(timer.timeLeft * 100);
+      setInitialTime(
+        (parseInt(timer.hours) * 3600 +
+          parseInt(timer.minutes) * 60 +
+          parseInt(timer.seconds)) *
+          100
+      );
+      setTimerName(timer.name || "");
     }
   }, [timer]);
 
@@ -108,18 +124,18 @@ const CircularTimer = ({ id, size = 200 }: CircularTimerProps) => {
 
     if (timer.isRunning) {
       stopTimer(id);
-    } else if (timeLeft > 0) {
-      startTimer(id);
     } else {
-      resetAndStartTimer(id);
-      const initialTimeInSeconds =
-        parseInt(timer.hours) * 3600 +
-        parseInt(timer.minutes) * 60 +
-        parseInt(timer.seconds);
-      setTimeLeft(initialTimeInSeconds * 100);
-      setInitialTime(initialTimeInSeconds * 100);
+      if (timeLeft === 0) {
+        const initialTimeInSeconds =
+          parseInt(timer.hours) * 3600 +
+          parseInt(timer.minutes) * 60 +
+          parseInt(timer.seconds);
+        setTimeLeft(initialTimeInSeconds * 100);
+        setInitialTime(initialTimeInSeconds * 100);
+      }
+      startTimer(id);
     }
-  }, [timer, timeLeft, id, startTimer, stopTimer, resetAndStartTimer]);
+  }, [timer, timeLeft, id, startTimer, stopTimer]);
 
   const handleDelete = useCallback(() => {
     deleteTimer(id);

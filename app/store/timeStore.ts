@@ -1,4 +1,6 @@
+import { useEffect } from "react";
 import { create } from "zustand";
+import { persist } from "zustand/middleware";
 import { TimeUnit } from "../types/types";
 
 export type Timer = {
@@ -8,6 +10,7 @@ export type Timer = {
   timeLeft: number;
   isRunning: boolean;
   id: string;
+  name: string;
 };
 
 export type TimeState = {
@@ -15,6 +18,8 @@ export type TimeState = {
   inputMinutes: string;
   inputSeconds: string;
   timers: Timer[];
+  addTimer: (timer: Timer) => void;
+  updateTimer: (id: string, updates: Partial<Timer>) => void;
   setInputTime: (unit: TimeUnit, value: string) => void;
   createTimer: (id: string) => void;
   startTimer: (id: string) => void;
@@ -24,113 +29,149 @@ export type TimeState = {
   deleteTimer: (id: string) => void;
   setTimeLeft: (id: string, value: number) => void;
   resetAndStartTimer: (id: string) => void;
+  updateTimerName: (id: string, name: string) => void;
 };
 
-export const useTimeStore = create<TimeState>((set) => ({
-  inputHours: "00",
-  inputMinutes: "00",
-  inputSeconds: "00",
-  timers: [],
-  setInputTime: (unit, value) =>
-    set({ [`input${unit.charAt(0).toUpperCase() + unit.slice(1)}`]: value }),
-
-  createTimer: (id) =>
-    set((state) => ({
-      timers: [
-        ...state.timers,
-        {
-          id: Date.now().toString(),
-          hours: state.inputHours,
-          minutes: state.inputMinutes,
-          seconds: state.inputSeconds,
-          timeLeft:
-            parseInt(state.inputHours) * 3600 +
-            parseInt(state.inputMinutes) * 60 +
-            parseInt(state.inputSeconds),
-          isRunning: false,
-        },
-      ],
+export const useTimeStore = create(
+  persist<TimeState>(
+    (set, get) => ({
       inputHours: "00",
       inputMinutes: "00",
       inputSeconds: "00",
-    })),
-
-  startTimer: (id) =>
-    set((state) => ({
-      timers: state.timers.map((timer) =>
-        timer.id === id ? { ...timer, isRunning: true } : timer
-      ),
-    })),
-
-  stopTimer: (id) =>
-    set((state) => ({
-      timers: state.timers.map((timer) =>
-        timer.id === id ? { ...timer, isRunning: false } : timer
-      ),
-    })),
-
-  resetAndStartTimer: (id: string) =>
-    set((state) => ({
-      timers: state.timers.map((timer) =>
-        timer.id === id
-          ? {
-              ...timer,
+      timers: [],
+      addTimer: (timer) =>
+        set((state) => ({ timers: [...state.timers, timer] })),
+      updateTimer: (id, updates) =>
+        set((state) => ({
+          timers: state.timers.map((t) =>
+            t.id === id ? { ...t, ...updates } : t
+          ),
+        })),
+      setInputTime: (unit, value) =>
+        set({
+          [`input${unit.charAt(0).toUpperCase() + unit.slice(1)}`]: value,
+        }),
+      createTimer: (id) =>
+        set((state) => ({
+          timers: [
+            ...state.timers,
+            {
+              id: Date.now().toString(),
+              hours: state.inputHours,
+              minutes: state.inputMinutes,
+              seconds: state.inputSeconds,
               timeLeft:
-                parseInt(timer.hours) * 3600 +
-                parseInt(timer.minutes) * 60 +
-                parseInt(timer.seconds),
-              isRunning: true,
-            }
-          : timer
-      ),
-    })),
-
-  tick: (id) =>
-    set((state) => ({
-      timers: state.timers.map((timer) => {
-        if (timer.id === id && timer.isRunning && timer.timeLeft > 0) {
-          const newTimeLeft = timer.timeLeft - 1;
-          return {
-            ...timer,
-            timeLeft: newTimeLeft,
-            hours: Math.floor(newTimeLeft / 3600)
-              .toString()
-              .padStart(2, "0"),
-            minutes: Math.floor((newTimeLeft % 3600) / 60)
-              .toString()
-              .padStart(2, "0"),
-            seconds: (newTimeLeft % 60).toString().padStart(2, "0"),
-          };
-        }
-        return timer;
-      }),
-    })),
-
-  setTimeLeft: (id: string, value: number) =>
-    set((state) => ({
-      timers: state.timers.map((timer) =>
-        timer.id === id ? { ...timer, timeLeft: value } : timer
-      ),
-    })),
-
-  resetTimer: (id) =>
-    set((state) => ({
-      timers: state.timers.map((timer) =>
-        timer.id === id
-          ? {
-              ...timer,
-              timeLeft:
-                parseInt(timer.hours) * 3600 +
-                parseInt(timer.minutes) * 60 +
-                parseInt(timer.seconds),
+                parseInt(state.inputHours) * 3600 +
+                parseInt(state.inputMinutes) * 60 +
+                parseInt(state.inputSeconds),
               isRunning: false,
+              name: "",
+            },
+          ],
+          inputHours: "00",
+          inputMinutes: "00",
+          inputSeconds: "00",
+        })),
+      startTimer: (id) =>
+        set((state) => ({
+          timers: state.timers.map((timer) =>
+            timer.id === id ? { ...timer, isRunning: true } : timer
+          ),
+        })),
+      stopTimer: (id) =>
+        set((state) => ({
+          timers: state.timers.map((timer) =>
+            timer.id === id ? { ...timer, isRunning: false } : timer
+          ),
+        })),
+      tick: (id) =>
+        set((state) => ({
+          timers: state.timers.map((timer) => {
+            if (timer.id === id && timer.isRunning && timer.timeLeft > 0) {
+              const newTimeLeft = timer.timeLeft - 1;
+              return {
+                ...timer,
+                timeLeft: newTimeLeft,
+                hours: Math.floor(newTimeLeft / 3600)
+                  .toString()
+                  .padStart(2, "0"),
+                minutes: Math.floor((newTimeLeft % 3600) / 60)
+                  .toString()
+                  .padStart(2, "0"),
+                seconds: (newTimeLeft % 60).toString().padStart(2, "0"),
+              };
             }
-          : timer
-      ),
-    })),
+            return timer;
+          }),
+        })),
+      resetTimer: (id) =>
+        set((state) => ({
+          timers: state.timers.map((timer) =>
+            timer.id === id
+              ? {
+                  ...timer,
+                  timeLeft:
+                    parseInt(timer.hours) * 3600 +
+                    parseInt(timer.minutes) * 60 +
+                    parseInt(timer.seconds),
+                  isRunning: false,
+                }
+              : timer
+          ),
+        })),
+      deleteTimer: (id) =>
+        set((state) => ({
+          timers: state.timers.filter((timer) => timer.id !== id),
+        })),
+      setTimeLeft: (id: string, value: number) =>
+        set((state) => ({
+          timers: state.timers.map((timer) =>
+            timer.id === id ? { ...timer, timeLeft: value } : timer
+          ),
+        })),
+      resetAndStartTimer: (id: string) =>
+        set((state) => ({
+          timers: state.timers.map((timer) =>
+            timer.id === id
+              ? {
+                  ...timer,
+                  timeLeft:
+                    parseInt(timer.hours) * 3600 +
+                    parseInt(timer.minutes) * 60 +
+                    parseInt(timer.seconds),
+                  isRunning: true,
+                }
+              : timer
+          ),
+        })),
+      updateTimerName: (id: string, name: string) =>
+        set((state) => ({
+          timers: state.timers.map((timer) =>
+            timer.id === id ? { ...timer, name } : timer
+          ),
+        })),
+    }),
+    {
+      name: "timer-storage",
+      getStorage: () => localStorage,
+    }
+  )
+);
 
-  deleteTimer: (id) =>
-    set((state) => ({
-      timers: state.timers.filter((timer) => timer.id !== id),
-    })),
-}));
+export const useTimerTick = () => {
+  useEffect(() => {
+    const interval = setInterval(() => {
+      const state = useTimeStore.getState();
+      state.timers.forEach((timer) => {
+        if (timer.isRunning) {
+          state.tick(timer.id);
+          if (timer.timeLeft <= 0) {
+            state.stopTimer(timer.id);
+          }
+        }
+      });
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, []);
+};
