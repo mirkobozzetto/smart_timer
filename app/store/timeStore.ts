@@ -85,18 +85,32 @@ export const useTimeStore = create(
             timer.id === id ? { ...timer, isRunning: false } : timer
           ),
         })),
+      // tick: (id) =>
+      //   set((state) => ({
+      //     timers: state.timers.map((timer) => {
+      //       if (timer.id === id && timer.isRunning && timer.timeLeft > 0) {
+      //         return {
+      //           ...timer,
+      //           timeLeft: Math.max(timer.timeLeft - 1000, 0),
+      //         };
+      //       }
+      //       return timer;
+      //     }),
+      //   })),
+
       tick: (id) =>
         set((state) => ({
           timers: state.timers.map((timer) => {
             if (timer.id === id && timer.isRunning && timer.timeLeft > 0) {
               return {
                 ...timer,
-                timeLeft: Math.max(timer.timeLeft - 1000, 0),
+                timeLeft: Math.max(timer.timeLeft - 16, 0), // Environ 60 FPS
               };
             }
             return timer;
           }),
         })),
+
       resetTimer: (id) =>
         set((state) => ({
           timers: state.timers.map((timer) =>
@@ -122,6 +136,23 @@ export const useTimeStore = create(
             timer.id === id ? { ...timer, timeLeft: value } : timer
           ),
         })),
+      // resetAndStartTimer: (id: string) =>
+      //   set((state) => ({
+      //     timers: state.timers.map((timer) =>
+      //       timer.id === id
+      //         ? {
+      //             ...timer,
+      //             timeLeft:
+      //               (parseInt(timer.hours) * 3600 +
+      //                 parseInt(timer.minutes) * 60 +
+      //                 parseInt(timer.seconds)) *
+      //               1000,
+      //             isRunning: true,
+      //           }
+      //         : timer
+      //     ),
+      //   })),
+
       resetAndStartTimer: (id: string) =>
         set((state) => ({
           timers: state.timers.map((timer) =>
@@ -138,6 +169,7 @@ export const useTimeStore = create(
               : timer
           ),
         })),
+
       updateTimerName: (id: string, name: string) =>
         set((state) => ({
           timers: state.timers.map((timer) =>
@@ -152,9 +184,29 @@ export const useTimeStore = create(
   )
 );
 
+// export const useTimerTick = () => {
+//   useEffect(() => {
+//     const interval = setInterval(() => {
+//       const state = useTimeStore.getState();
+//       state.timers.forEach((timer) => {
+//         if (timer.isRunning) {
+//           state.tick(timer.id);
+//           if (timer.timeLeft <= 0) {
+//             state.stopTimer(timer.id);
+//           }
+//         }
+//       });
+//     }, 1000);
+
+//     return () => clearInterval(interval);
+//   }, []);
+// };
+
 export const useTimerTick = () => {
   useEffect(() => {
-    const interval = setInterval(() => {
+    let animationFrameId: number;
+
+    const updateTimers = () => {
       const state = useTimeStore.getState();
       state.timers.forEach((timer) => {
         if (timer.isRunning) {
@@ -164,8 +216,11 @@ export const useTimerTick = () => {
           }
         }
       });
-    }, 1000);
+      animationFrameId = requestAnimationFrame(updateTimers);
+    };
 
-    return () => clearInterval(interval);
+    animationFrameId = requestAnimationFrame(updateTimers);
+
+    return () => cancelAnimationFrame(animationFrameId);
   }, []);
 };

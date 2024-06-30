@@ -14,7 +14,6 @@ const CircularTimer = ({ id, size = 200 }: CircularTimerProps) => {
     startTimer,
     stopTimer,
     deleteTimer,
-    // tick,
     createTimer,
     resetAndStartTimer,
     updateTimerName,
@@ -25,10 +24,11 @@ const CircularTimer = ({ id, size = 200 }: CircularTimerProps) => {
 
   const [timeLeft, setTimeLeft] = useState<number>(0);
   const [initialTime, setInitialTime] = useState<number>(0);
-  const [timerName, setTimerName] = useState<string>("");
+  const timeLeftRef = useRef<number>(0);
+  const initialTimeRef = useRef<number>(0);
 
   const initializedRef = useRef(false);
-
+  const [timerName, setTimerName] = useState<string>("");
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
   const handleDelete = useCallback(() => {
@@ -62,8 +62,61 @@ const CircularTimer = ({ id, size = 200 }: CircularTimerProps) => {
   );
 
   useEffect(() => {
-    let animationFrameId: number | null = null;
+    // let animationFrameId: number | null = null;
+    let animationFrameId: number;
     let lastUpdateTime: number | null = null;
+
+    // const updateTimer = (currentTime: number) => {
+    //   if (!timer || !timer.isRunning) return;
+
+    //   if (lastUpdateTime === null) {
+    //     lastUpdateTime = currentTime;
+    //     animationFrameId = requestAnimationFrame(updateTimer);
+    //     return;
+    //   }
+
+    //   const deltaTime = currentTime - lastUpdateTime;
+
+    //   if (deltaTime >= 1000) {
+    //     setTimeLeft((prevTime) => {
+    //       const newTime = Math.max(prevTime - 1000, 0);
+    //       if (newTime <= 0) {
+    //         stopTimer(timer.id);
+    //         playAlarm();
+    //         return 0;
+    //       }
+    //       return newTime;
+    //     });
+    //     lastUpdateTime = currentTime;
+    //   }
+
+    //   animationFrameId = requestAnimationFrame(updateTimer);
+    // };
+
+    // const updateTimer = (currentTime: number) => {
+    //   if (!timer || !timer.isRunning) return;
+
+    //   if (lastUpdateTime === null) {
+    //     lastUpdateTime = currentTime;
+    //     animationFrameId = requestAnimationFrame(updateTimer);
+    //     return;
+    //   }
+
+    //   const deltaTime = currentTime - lastUpdateTime;
+
+    //   setTimeLeft((prevTime) => {
+    //     const newTime = Math.max(prevTime - deltaTime, 0);
+    //     if (newTime <= 0) {
+    //       stopTimer(timer.id);
+    //       playAlarm();
+    //       return 0;
+    //     }
+    //     return newTime;
+    //   });
+
+    //   lastUpdateTime = currentTime;
+    //   animationFrameId = requestAnimationFrame(updateTimer);
+    // };
 
     const updateTimer = (currentTime: number) => {
       if (!timer || !timer.isRunning) return;
@@ -74,27 +127,22 @@ const CircularTimer = ({ id, size = 200 }: CircularTimerProps) => {
         return;
       }
 
-      const deltaTime = currentTime - lastUpdateTime;
-
-      if (deltaTime >= 1000) {
-        setTimeLeft((prevTime) => {
-          const newTime = Math.max(prevTime - 1000, 0);
-          if (newTime <= 0) {
-            stopTimer(timer.id);
-            playAlarm();
-            return 0;
-          }
-          return newTime;
-        });
-        lastUpdateTime = currentTime;
+      if (timer?.isRunning && timeLeft > 0) {
+        animationFrameId = requestAnimationFrame(updateTimer);
       }
 
+      const deltaTime = currentTime - lastUpdateTime;
+
+      timeLeftRef.current = Math.max(timeLeftRef.current - deltaTime, 0);
+      setTimeLeft(timeLeftRef.current); // Ajoutez cette ligne pour mettre à jour l'état
+      if (timeLeftRef.current <= 0) {
+        stopTimer(timer.id);
+        playAlarm();
+      }
+
+      lastUpdateTime = currentTime;
       animationFrameId = requestAnimationFrame(updateTimer);
     };
-
-    if (timer?.isRunning && timeLeft > 0) {
-      animationFrameId = requestAnimationFrame(updateTimer);
-    }
 
     return () => {
       if (animationFrameId !== null) {
@@ -103,6 +151,19 @@ const CircularTimer = ({ id, size = 200 }: CircularTimerProps) => {
     };
   }, [timer, stopTimer, playAlarm, timeLeft]);
 
+  // useEffect(() => {
+  //   if (timer) {
+  //     const initialTimeInMilliseconds =
+  //       (parseInt(timer.hours) * 3600 +
+  //         parseInt(timer.minutes) * 60 +
+  //         parseInt(timer.seconds)) *
+  //       1000;
+  //     setTimeLeft(timer.timeLeft);
+  //     setInitialTime(initialTimeInMilliseconds);
+  //     setTimerName(timer.name || "");
+  //   }
+  // }, [timer]);
+
   useEffect(() => {
     if (timer) {
       const initialTimeInMilliseconds =
@@ -110,8 +171,10 @@ const CircularTimer = ({ id, size = 200 }: CircularTimerProps) => {
           parseInt(timer.minutes) * 60 +
           parseInt(timer.seconds)) *
         1000;
-      setTimeLeft(timer.timeLeft);
-      setInitialTime(initialTimeInMilliseconds);
+      timeLeftRef.current = timer.timeLeft;
+      initialTimeRef.current = initialTimeInMilliseconds;
+      setTimeLeft(timer.timeLeft); // Ajoutez cette ligne
+      setInitialTime(initialTimeInMilliseconds); // Ajoutez cette ligne
       setTimerName(timer.name || "");
     }
   }, [timer]);
@@ -133,20 +196,57 @@ const CircularTimer = ({ id, size = 200 }: CircularTimerProps) => {
       ),
     }));
 
+  // const handleStartPause = useCallback(() => {
+  //   if (!timer) return;
+
+  //   if (timer.isRunning) {
+  //     stopTimer(id);
+  //     updateTimer(id, { timeLeft });
+  //   } else {
+  //     if (timeLeft === 0 || timeLeft === initialTime) {
+  //       // Réinitialiser le timer à sa valeur initiale
+  //       const initialTimeInMilliseconds =
+  //         (parseInt(timer.hours) * 3600 +
+  //           parseInt(timer.minutes) * 60 +
+  //           parseInt(timer.seconds)) *
+  //         1000;
+  //       setTimeLeft(initialTimeInMilliseconds);
+  //       setInitialTime(initialTimeInMilliseconds);
+  //       resetAndStartTimer(id);
+  //     } else {
+  //       startTimer(id);
+  //     }
+  //   }
+  // }, [
+  //   timer,
+  //   timeLeft,
+  //   initialTime,
+  //   id,
+  //   startTimer,
+  //   stopTimer,
+  //   updateTimer,
+  //   resetAndStartTimer,
+  // ]);
+
   const handleStartPause = useCallback(() => {
     if (!timer) return;
 
     if (timer.isRunning) {
       stopTimer(id);
-      updateTimer(id, { timeLeft });
+      updateTimer(id, { timeLeft: timeLeftRef.current });
     } else {
-      if (timeLeft === 0 || timeLeft === initialTime) {
+      if (
+        timeLeftRef.current === 0 ||
+        timeLeftRef.current === initialTimeRef.current
+      ) {
         // Réinitialiser le timer à sa valeur initiale
         const initialTimeInMilliseconds =
           (parseInt(timer.hours) * 3600 +
             parseInt(timer.minutes) * 60 +
             parseInt(timer.seconds)) *
           1000;
+        timeLeftRef.current = initialTimeInMilliseconds;
+        initialTimeRef.current = initialTimeInMilliseconds;
         setTimeLeft(initialTimeInMilliseconds);
         setInitialTime(initialTimeInMilliseconds);
         resetAndStartTimer(id);
@@ -154,20 +254,22 @@ const CircularTimer = ({ id, size = 200 }: CircularTimerProps) => {
         startTimer(id);
       }
     }
-  }, [
-    timer,
-    timeLeft,
-    initialTime,
-    id,
-    startTimer,
-    stopTimer,
-    updateTimer,
-    resetAndStartTimer,
-  ]);
+  }, [timer, id, startTimer, stopTimer, updateTimer, resetAndStartTimer]);
 
   const radius = size / 2;
   const circumference = 2 * Math.PI * (radius - 10);
-  const strokeDashoffset = circumference * (1 - timeLeft / (initialTime || 1));
+  // const strokeDashoffset = circumference * (1 - timeLeft / (initialTime || 1));
+  const strokeDashoffset =
+    circumference * (1 - timeLeftRef.current / (initialTimeRef.current || 1));
+
+  // const formatTime = (time: number): string => {
+  //   const hours = Math.floor(time / 3600000);
+  //   const minutes = Math.floor((time % 3600000) / 60000);
+  //   const seconds = Math.floor((time % 60000) / 1000);
+  //   return `${hours.toString().padStart(2, "0")}:${minutes
+  //     .toString()
+  //     .padStart(2, "0")}:${seconds.toString().padStart(2, "0")}`;
+  // };
 
   const formatTime = (time: number): string => {
     const hours = Math.floor(time / 3600000);
