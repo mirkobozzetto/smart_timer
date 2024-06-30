@@ -14,6 +14,25 @@ const TimePicker = () => {
 
   const timerRef = useRef<NodeJS.Timeout | null>(null);
 
+  // const handleEnterPress = useCallback(() => {
+  //   if (timerRef.current) {
+  //     clearTimeout(timerRef.current);
+  //   }
+
+  //   timerRef.current = setTimeout(() => {
+  //     const totalSeconds =
+  //       parseInt(inputHours) * 3600 +
+  //       parseInt(inputMinutes) * 60 +
+  //       parseInt(inputSeconds);
+
+  //     if (totalSeconds > 0) {
+  //       createTimer(Date.now().toString());
+  //     } else {
+  //       console.log("Timer value must be greater than 0");
+  //     }
+  //   }, 300); // 300ms de délai pour que le timer soit créé et démarré
+  // }, [inputHours, inputMinutes, inputSeconds, createTimer]);
+
   const handleEnterPress = useCallback(() => {
     if (timerRef.current) {
       clearTimeout(timerRef.current);
@@ -26,11 +45,11 @@ const TimePicker = () => {
         parseInt(inputSeconds);
 
       if (totalSeconds > 0) {
-        createTimer(Date.now().toString());
+        createTimer(Date.now().toString()); // Ajout de l'argument ici
       } else {
         console.log("Timer value must be greater than 0");
       }
-    }, 300); // 300ms de délai pour que le timer soit créé et démarré
+    }, 300);
   }, [inputHours, inputMinutes, inputSeconds, createTimer]);
 
   return (
