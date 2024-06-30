@@ -66,19 +66,20 @@ const CircularTimer = ({ id, size = 200 }: CircularTimerProps) => {
     let lastUpdateTime: number | null = null;
 
     const updateTimer = (currentTime: number) => {
-      if (!timer) return;
+      if (!timer || !timer.isRunning) return;
 
       if (lastUpdateTime === null) {
         lastUpdateTime = currentTime;
+        animationFrameId = requestAnimationFrame(updateTimer);
+        return;
       }
 
       const deltaTime = currentTime - lastUpdateTime;
 
-      if (deltaTime >= 1) {
-        // Mise à jour toutes les millisecondes
+      if (deltaTime >= 1000) {
         setTimeLeft((prevTime) => {
-          const newTime = Math.max(prevTime - deltaTime, 0);
-          if (newTime <= 0 && prevTime !== 0) {
+          const newTime = Math.max(prevTime - 1000, 0);
+          if (newTime <= 0) {
             stopTimer(timer.id);
             playAlarm();
             return 0;
@@ -88,9 +89,7 @@ const CircularTimer = ({ id, size = 200 }: CircularTimerProps) => {
         lastUpdateTime = currentTime;
       }
 
-      if (timer.isRunning && timeLeft > 0) {
-        animationFrameId = requestAnimationFrame(updateTimer);
-      }
+      animationFrameId = requestAnimationFrame(updateTimer);
     };
 
     if (timer?.isRunning && timeLeft > 0) {
@@ -139,9 +138,9 @@ const CircularTimer = ({ id, size = 200 }: CircularTimerProps) => {
 
     if (timer.isRunning) {
       stopTimer(id);
-      updateTimer(id, { timeLeft: timeLeft });
+      updateTimer(id, { timeLeft });
     } else {
-      if (timeLeft === 0) {
+      if (timeLeft === 0 || timeLeft === initialTime) {
         // Réinitialiser le timer à sa valeur initiale
         const initialTimeInMilliseconds =
           (parseInt(timer.hours) * 3600 +
@@ -158,6 +157,7 @@ const CircularTimer = ({ id, size = 200 }: CircularTimerProps) => {
   }, [
     timer,
     timeLeft,
+    initialTime,
     id,
     startTimer,
     stopTimer,
@@ -173,12 +173,9 @@ const CircularTimer = ({ id, size = 200 }: CircularTimerProps) => {
     const hours = Math.floor(time / 3600000);
     const minutes = Math.floor((time % 3600000) / 60000);
     const seconds = Math.floor((time % 60000) / 1000);
-    const milliseconds = time % 1000;
     return `${hours.toString().padStart(2, "0")}:${minutes
       .toString()
-      .padStart(2, "0")}:${seconds.toString().padStart(2, "0")}.${milliseconds
-      .toString()
-      .padStart(3, "0")}`;
+      .padStart(2, "0")}:${seconds.toString().padStart(2, "0")}`;
   };
 
   return (

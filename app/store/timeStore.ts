@@ -61,9 +61,10 @@ export const useTimeStore = create(
               minutes: state.inputMinutes,
               seconds: state.inputSeconds,
               timeLeft:
-                parseInt(state.inputHours) * 3600 +
-                parseInt(state.inputMinutes) * 60 +
-                parseInt(state.inputSeconds),
+                (parseInt(state.inputHours) * 3600 +
+                  parseInt(state.inputMinutes) * 60 +
+                  parseInt(state.inputSeconds)) *
+                1000,
               isRunning: false,
               name: "",
             },
@@ -90,7 +91,7 @@ export const useTimeStore = create(
             if (timer.id === id && timer.isRunning && timer.timeLeft > 0) {
               return {
                 ...timer,
-                timeLeft: timer.timeLeft - 1,
+                timeLeft: Math.max(timer.timeLeft - 1000, 0),
               };
             }
             return timer;
@@ -128,9 +129,10 @@ export const useTimeStore = create(
               ? {
                   ...timer,
                   timeLeft:
-                    parseInt(timer.hours) * 3600 +
-                    parseInt(timer.minutes) * 60 +
-                    parseInt(timer.seconds),
+                    (parseInt(timer.hours) * 3600 +
+                      parseInt(timer.minutes) * 60 +
+                      parseInt(timer.seconds)) *
+                    1000,
                   isRunning: true,
                 }
               : timer
