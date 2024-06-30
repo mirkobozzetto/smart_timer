@@ -23,6 +23,7 @@ export type TimeState = {
   resetTimer: (id: string) => void;
   deleteTimer: (id: string) => void;
   setTimeLeft: (id: string, value: number) => void;
+  resetAndStartTimer: (id: string) => void;
 };
 
 export const useTimeStore = create<TimeState>((set) => ({
@@ -65,6 +66,22 @@ export const useTimeStore = create<TimeState>((set) => ({
     set((state) => ({
       timers: state.timers.map((timer) =>
         timer.id === id ? { ...timer, isRunning: false } : timer
+      ),
+    })),
+
+  resetAndStartTimer: (id: string) =>
+    set((state) => ({
+      timers: state.timers.map((timer) =>
+        timer.id === id
+          ? {
+              ...timer,
+              timeLeft:
+                parseInt(timer.hours) * 3600 +
+                parseInt(timer.minutes) * 60 +
+                parseInt(timer.seconds),
+              isRunning: true,
+            }
+          : timer
       ),
     })),
 

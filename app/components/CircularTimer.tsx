@@ -1,6 +1,6 @@
 import { memo, useCallback, useEffect, useRef, useState } from "react";
 import { gifKeywords } from "../keywords";
-import { Timer, useTimeStore } from "../store/timeStore";
+import { Timer, TimeState, useTimeStore } from "../store/timeStore";
 import RandomGiphyImage from "./RandomGiphyImage";
 
 interface CircularTimerProps {
@@ -10,13 +10,21 @@ interface CircularTimerProps {
 }
 
 const CircularTimer = ({ id, size = 200 }: CircularTimerProps) => {
-  const { startTimer, stopTimer, deleteTimer, tick, createTimer } =
-    useTimeStore();
+  const {
+    startTimer,
+    stopTimer,
+    deleteTimer,
+    tick,
+    createTimer,
+    resetAndStartTimer,
+  } = useTimeStore();
 
   const timer = useTimeStore((state) => state.timers.find((t) => t.id === id));
 
   const [timeLeft, setTimeLeft] = useState<number>(0);
   const [initialTime, setInitialTime] = useState<number>(0);
+  // const [initialTimerValue, setInitialTimerValue] = useState<number>(0);
+
   const initializedRef = useRef(false);
 
   const audioRef = useRef<HTMLAudioElement | null>(null);
@@ -34,12 +42,12 @@ const CircularTimer = ({ id, size = 200 }: CircularTimerProps) => {
     }
   }, []);
 
-  const stopAlarm = () => {
-    if (audioRef.current) {
-      audioRef.current.pause();
-      audioRef.current.currentTime = 0;
-    }
-  };
+  // const stopAlarm = () => {
+  //   if (audioRef.current) {
+  //     audioRef.current.pause();
+  //     audioRef.current.currentTime = 0;
+  //   }
+  // };
 
   useEffect(() => {
     if (timer && !initializedRef.current) {
@@ -90,13 +98,40 @@ const CircularTimer = ({ id, size = 200 }: CircularTimerProps) => {
     };
   }, [timer?.isRunning, stopTimer, timer?.id, playAlarm]);
 
+  resetAndStartTimer: (id: string) =>
+    // @ts-ignore
+    set((state: TimeState) => ({
+      timers: state.timers.map((timer: Timer) =>
+        timer.id === id
+          ? {
+              ...timer,
+              timeLeft:
+                parseInt(timer.hours) * 3600 +
+                parseInt(timer.minutes) * 60 +
+                parseInt(timer.seconds),
+              isRunning: true,
+            }
+          : timer
+      ),
+    }));
+
   const handleStartPause = useCallback(() => {
-    if (timer?.isRunning) {
+    if (!timer) return;
+
+    if (timer.isRunning) {
       stopTimer(id);
-    } else {
+    } else if (timeLeft > 0) {
       startTimer(id);
+    } else {
+      resetAndStartTimer(id);
+      const initialTimeInSeconds =
+        parseInt(timer.hours) * 3600 +
+        parseInt(timer.minutes) * 60 +
+        parseInt(timer.seconds);
+      setTimeLeft(initialTimeInSeconds * 100);
+      setInitialTime(initialTimeInSeconds * 100);
     }
-  }, [timer?.isRunning, id, startTimer, stopTimer]);
+  }, [timer, timeLeft, id, startTimer, stopTimer, resetAndStartTimer]);
 
   const handleDelete = useCallback(() => {
     deleteTimer(id);
@@ -188,9 +223,9 @@ const CircularTimer = ({ id, size = 200 }: CircularTimerProps) => {
         <button
           className="py-2 rounded text-white"
           onClick={handleStartPause}
-          disabled={timeLeft === 0}
+          // disabled={timeLeft === 0}
         >
-          {timer?.isRunning ? "Pause" : "Start"}
+          {timer?.isRunning ? "Pause" : timeLeft === 0 ? "Restart" : "Start"}
         </button>
         <button className="py-2 rounded text-white" onClick={handleDelete}>
           Delete
