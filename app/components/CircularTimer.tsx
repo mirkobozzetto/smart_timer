@@ -17,6 +17,8 @@ const CircularTimer = ({ id, size = 200 }: CircularTimerProps) => {
     resetAndStartTimer,
     updateTimerName,
     updateTimer,
+    shouldPlayAlarm,
+    setShouldPlayAlarm,
   } = useTimeStore();
 
   const timer = useTimeStore((state) => state.timers.find((t) => t.id === id));
@@ -40,6 +42,17 @@ const CircularTimer = ({ id, size = 200 }: CircularTimerProps) => {
   useEffect(() => {
     audioRef.current = new Audio("/clockalarm.mp3");
   }, []);
+
+  useEffect(() => {
+    if (shouldPlayAlarm) {
+      if (audioRef.current) {
+        audioRef.current.play().catch((error) => {
+          console.error("Erreur de lecture de l'alarme:", error);
+        });
+      }
+      setShouldPlayAlarm(false);
+    }
+  }, [shouldPlayAlarm, setShouldPlayAlarm]);
 
   const playAlarm = useCallback(() => {
     if (audioRef.current) {
@@ -100,6 +113,7 @@ const CircularTimer = ({ id, size = 200 }: CircularTimerProps) => {
           1000;
         setTimeLeft(initialTimeInMilliseconds);
         resetAndStartTimer(id);
+        setShouldPlayAlarm(false);
       } else {
         startTimer(id);
       }
@@ -112,6 +126,7 @@ const CircularTimer = ({ id, size = 200 }: CircularTimerProps) => {
     stopTimer,
     updateTimer,
     resetAndStartTimer,
+    setShouldPlayAlarm,
   ]);
 
   const radius = size / 2;

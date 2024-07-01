@@ -30,6 +30,8 @@ export type TimeState = {
   setTimeLeft: (id: string, value: number) => void;
   resetAndStartTimer: (id: string) => void;
   updateTimerName: (id: string, name: string) => void;
+  shouldPlayAlarm: boolean;
+  setShouldPlayAlarm: (shouldPlay: boolean) => void;
 };
 
 export const useTimeStore = create(
@@ -90,13 +92,30 @@ export const useTimeStore = create(
           ),
         })),
 
+      // tick: (id) =>
+      //   set((state) => ({
+      //     timers: state.timers.map((timer) => {
+      //       if (timer.id === id && timer.isRunning && timer.timeLeft > 0) {
+      //         return {
+      //           ...timer,
+      //           timeLeft: Math.max(timer.timeLeft - 1000, 0),
+      //         };
+      //       }
+      //       return timer;
+      //     }),
+      //   })),
+
       tick: (id) =>
         set((state) => ({
           timers: state.timers.map((timer) => {
             if (timer.id === id && timer.isRunning && timer.timeLeft > 0) {
+              const newTimeLeft = Math.max(timer.timeLeft - 1000, 0);
+              if (newTimeLeft === 0) {
+                state.setShouldPlayAlarm(true);
+              }
               return {
                 ...timer,
-                timeLeft: Math.max(timer.timeLeft - 1000, 0),
+                timeLeft: newTimeLeft,
               };
             }
             return timer;
@@ -154,6 +173,9 @@ export const useTimeStore = create(
             timer.id === id ? { ...timer, name } : timer
           ),
         })),
+
+      shouldPlayAlarm: false,
+      setShouldPlayAlarm: (value: boolean) => set({ shouldPlayAlarm: value }),
     }),
 
     {
